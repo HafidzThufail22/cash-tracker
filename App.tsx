@@ -22,6 +22,7 @@ import { BottomTabs, TabRoute } from './src/navigation/BottomTabs';
 import { DashboardScreen } from './src/features/dashboard/screens/DashboardScreen';
 import { WalletsScreen } from './src/features/wallets/screens/WalletsScreen';
 import { TransactionListScreen } from './src/features/transactions/screens/TransactionListScreen';
+import { BudgetsScreen } from './src/features/budgets/screens/BudgetsScreen';
 import { importLegacyData } from './src/database/importer/legacyJsonImporter';
 
 export default function App() {
@@ -104,14 +105,7 @@ export default function App() {
           ) : currentTab === 'transactions' ? (
             <TransactionListScreen />
           ) : (
-            <View style={styles.placeholderContainer}>
-              <Text style={styles.placeholderTitle}>
-                {currentTab.toUpperCase()}
-              </Text>
-              <Text style={styles.placeholderDesc}>
-                Layar {currentTab} akan dibangun pada langkah berikutnya.
-              </Text>
-            </View>
+            <BudgetsScreen />
           )}
         </View>
 
