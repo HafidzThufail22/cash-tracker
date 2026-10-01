@@ -20,6 +20,7 @@ import { ScreenWrapper } from './src/layouts/ScreenWrapper';
 import { Header } from './src/layouts/Header';
 import { BottomTabs, TabRoute } from './src/navigation/BottomTabs';
 import { DashboardScreen } from './src/features/dashboard/screens/DashboardScreen';
+import { WalletsScreen } from './src/features/wallets/screens/WalletsScreen';
 import { importLegacyData } from './src/database/importer/legacyJsonImporter';
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
   const [isDbReady, setIsDbReady] = useState(false);
   const [dbStatusMessage, setDbStatusMessage] = useState('Menginisialisasi basis data...');
   const [currentTab, setCurrentTab] = useState<TabRoute>('dashboard');
+  const [openTransferImmediate, setOpenTransferImmediate] = useState(false);
 
   useEffect(() => {
     async function setupApp() {
@@ -88,6 +90,15 @@ export default function App() {
             <DashboardScreen
               onNavigateToWallets={() => setCurrentTab('wallets')}
               onNavigateToHistory={() => setCurrentTab('transactions')}
+              onTransfer={() => {
+                setOpenTransferImmediate(true);
+                setCurrentTab('wallets');
+              }}
+            />
+          ) : currentTab === 'wallets' ? (
+            <WalletsScreen
+              initialOpenTransfer={openTransferImmediate}
+              onTransferClosed={() => setOpenTransferImmediate(false)}
             />
           ) : (
             <View style={styles.placeholderContainer}>
