@@ -21,6 +21,7 @@ import { Header } from './src/layouts/Header';
 import { BottomTabs, TabRoute } from './src/navigation/BottomTabs';
 import { DashboardScreen } from './src/features/dashboard/screens/DashboardScreen';
 import { WalletsScreen } from './src/features/wallets/screens/WalletsScreen';
+import { TransactionListScreen } from './src/features/transactions/screens/TransactionListScreen';
 import { importLegacyData } from './src/database/importer/legacyJsonImporter';
 
 export default function App() {
@@ -100,6 +101,8 @@ export default function App() {
               initialOpenTransfer={openTransferImmediate}
               onTransferClosed={() => setOpenTransferImmediate(false)}
             />
+          ) : currentTab === 'transactions' ? (
+            <TransactionListScreen />
           ) : (
             <View style={styles.placeholderContainer}>
               <Text style={styles.placeholderTitle}>
