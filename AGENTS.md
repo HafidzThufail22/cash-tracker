@@ -1,41 +1,82 @@
-This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
+# Cash Tracker — AI Agent Guidelines & Architecture Rules
 
-## Expo has changed — do not trust your training data
+This is an offline-first personal finance and budgeting mobile application built with **Expo (SDK 57) + React Native**. Prioritize performance, type-safety, and battery-friendly OLED dark luxury aesthetics.
 
-Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:
+---
 
-1. Read the major version of the `expo` package in `package.json`.
-2. Fetch the matching versioned docs: `https://docs.expo.dev/versions/v<major>.0.0/`
-3. For anything else, fetch https://docs.expo.dev/llms.txt — an index of all Expo docs with corrections to common LLM misconceptions. Follow its links to the specific page you need; never answer from memory.
+## 1. User Communication Rule (Mandatory)
 
-## Commands
+- **Language & Tone**: You MUST ALWAYS communicate and respond to the USER in **Bahasa Indonesia yang santai, gaul, akrab, dan seru** (casual, friendly, pair-programming buddy tone). Keep explanations crisp, exciting, and straight to the point without being stiff or overly formal.
+- Internal thought processes and code comments may remain in technical English or Indonesian as appropriate, but all user-facing explanations, plans, questions, and summaries must be in casual Indonesian.
 
-Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
+---
 
-```bash
-npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — resolves SDK-compatible versions
-npx expo start              # start the dev server
-npx expo lint               # lint
-npx tsc --noEmit            # typecheck
-npx expo-doctor             # diagnose dependency and config issues
-npx expo install --fix      # fix incompatible package versions
-```
+## 2. Single Source of Truth (Project Documentation)
 
-Run lint and typecheck before declaring any task done.
+Before designing, implementing, or modifying any feature, you MUST consult the authoritative specifications in the `docs/` directory:
 
-## Navigation & Routing
+1. **Folder Hierarchy & File Placements**: Consult `docs/Project-Structure.MD` before creating any file.
+2. **Product Logic, ERD & Business Rules**: Consult `docs/PRD.MD` for entity fields, relations, and functional requirements.
+3. **Database Architecture & Transfer Logic**: Consult `docs/Architecture.MD` for atomic transaction rules and data flow.
+4. **Design System & Visual Tokens**: Consult `docs/Design.MD` as the primary reference for OLED palettes, typography, and card styles. *(Note: The `docs/design/` folder is strictly optional and only referenced if explicitly asked by the user).*
 
-- Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.
-- Import `Link`, `router`, and `useLocalSearchParams` from `expo-router`.
-- Docs: https://docs.expo.dev/router/introduction.md
+---
 
-## Building with EAS
+## 3. Project Architecture & Navigation
 
-Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
-Docs: https://docs.expo.dev/eas/index.md
+- **Domain-Driven Feature Modules**: All feature code resides under `src/features/<feature>/`:
+  - `screens/`: Screen views (e.g., `DashboardScreen.tsx`, `WalletsScreen.tsx`, `TransactionListScreen.tsx`, `BudgetsScreen.tsx`)
+  - `components/`: Feature-scoped UI components
+  - `hooks/`: Feature state and data fetching hooks
+- **Navigation**:
+  - The application uses state-driven tab switching managed in `App.tsx` and `src/navigation/BottomTabs.tsx`.
+  - **CRITICAL**: Do NOT create file-based routes in `src/app/`. The project does NOT use Expo Router file-based directory routing.
+- **Shared Layouts & Components**:
+  - Global layouts reside in `src/layouts/` (`ScreenWrapper.tsx`, `Header.tsx`, `ModalLayout.tsx`).
+  - Reusable inputs and buttons reside in `src/components/common/` (`Button.tsx`, `InputField.tsx`, `CurrencyInput.tsx`).
 
-## Rules
+---
 
-- If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
-- Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
-- Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+## 4. Database & Financial Logic (Drizzle ORM + SQLite)
+
+- **Local Storage**: Data is stored locally via `expo-sqlite` and managed through Drizzle ORM (`src/database/db.ts`, `src/database/schema.ts`).
+- **Data Access Layer**: All database queries must be isolated inside `src/database/repositories/`:
+  - `walletRepo.ts`: Wallet balances and atomic transfers.
+  - `transactionRepo.ts`: Transaction ledger, monthly aggregation, and search filters.
+  - `categoryRepo.ts`: Expense and income categories.
+  - `budgetRepo.ts`: Category budget limits and real-time usage calculation.
+- **Transfer Rule (Nabung Antar-Kantong)**:
+  - Transfers between wallets are recorded as **1 single transaction row** with `type = 2`, `walletId = fromWalletId`, `toWalletId = toWalletId`, and `categoryId = null`.
+  - Never record two separate expense/income rows for an internal transfer.
+  - Transfers must NOT count against monthly expense budgets or distort Net Cash Flow calculations.
+- **Dynamic Wallet Balance Formula**:
+  $$\text{Balance} = \text{InitialBalance} + \sum(\text{Income}) - \sum(\text{Expense}) - \sum(\text{Transfer Out}) + \sum(\text{Transfer In})$$
+- **Formatters**:
+  - Always format currency values with `formatRupiah` or `formatSignedRupiah` from `src/utils/currency.ts`.
+  - Always format dates with helpers from `src/utils/date.ts`.
+
+---
+
+## 5. UI/UX & Design Tokens (OLED Dark Luxury FinTech)
+
+- **Background Palette**:
+  - Primary Background: `#09090B` (True OLED Black).
+  - Cards & Surfaces: `#18181B` (Zinc 900) or `#1C1C20`.
+  - Borders: `rgba(79, 70, 51, 0.3)` or `#27272A`.
+- **Accent & Semantic Colors**:
+  - Primary Accent (Gold): `#EAB308` / `#FFD165` (CTAs, hero cards, active tabs).
+  - Income (Emerald): `#10B981`.
+  - Expense (Crimson): `#EF4444`.
+  - Warning (Amber): `#F59E0B`.
+- **Typography**:
+  - Display & Currency Numbers: `SpaceGrotesk_700Bold` / `JetBrainsMono_500Medium`.
+  - Body & Labels: `Manrope_400Regular`, `Manrope_600SemiBold`, `Manrope_700Bold`.
+
+---
+
+## 6. Commands & Verification
+
+- **Package Installation**: ALWAYS use `npx expo install <package>` (or `bunx expo install <package>` if `bun.lock` is present) to resolve SDK-compatible dependencies.
+- **Type-Check**: ALWAYS run `npx tsc --noEmit` before declaring any task complete.
+- **Expo Diagnostics**: Run `npx expo-doctor` when adding native dependencies or modifying configurations.
+- **Continuous Native Generation**: Never manually edit native `ios/` or `android/` folders. Configure native behavior via `app.json` and config plugins.

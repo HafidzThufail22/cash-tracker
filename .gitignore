@@ -42,6 +42,7 @@ yarn-error.*
 
 # documentation
 docs/
+start-dev.MD
 
 # personal backup data
 src/assets/data/moneymanager_backup*.json

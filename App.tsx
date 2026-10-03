@@ -92,10 +92,6 @@ export default function App() {
             <DashboardScreen
               onNavigateToWallets={() => setCurrentTab('wallets')}
               onNavigateToHistory={() => setCurrentTab('transactions')}
-              onTransfer={() => {
-                setOpenTransferImmediate(true);
-                setCurrentTab('wallets');
-              }}
             />
           ) : currentTab === 'wallets' ? (
             <WalletsScreen

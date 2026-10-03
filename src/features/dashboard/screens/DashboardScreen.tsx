@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,8 @@ import {
 } from 'lucide-react-native';
 import { useDashboardSummary } from '../hooks/useDashboardSummary';
 import { TotalBalanceCard } from '../components/TotalBalanceCard';
-import { QuickActionButtons } from '../components/QuickActionButtons';
+import { ActionFAB } from '../components/ActionFAB';
+import { ActionSheetModal } from '../components/ActionSheetModal';
 import { WalletCard, NewPocketCard } from '../../wallets/components/WalletCard';
 import { RecentTransactions } from '../components/RecentTransactions';
 import { formatPeriodLabel } from '../../../utils/date';
@@ -25,18 +26,13 @@ import { formatPeriodLabel } from '../../../utils/date';
 interface DashboardScreenProps {
   onNavigateToWallets?: () => void;
   onNavigateToHistory?: () => void;
-  onAddIncome?: () => void;
-  onAddExpense?: () => void;
-  onTransfer?: () => void;
 }
 
 export function DashboardScreen({
   onNavigateToWallets,
   onNavigateToHistory,
-  onAddIncome,
-  onAddExpense,
-  onTransfer,
 }: DashboardScreenProps) {
+  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
   const {
     selectedYear,
     selectedMonth,
@@ -57,7 +53,8 @@ export function DashboardScreen({
   }, []);
 
   return (
-    <ScrollView
+    <View style={styles.screenRoot}>
+      <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
@@ -99,13 +96,6 @@ export function DashboardScreen({
         monthlyExpense={monthlyExpense}
         isBalanceHidden={isBalanceHidden}
         onToggleBalance={toggleBalanceHidden}
-      />
-
-      {/* Primary Action Capsule Buttons */}
-      <QuickActionButtons
-        onIncomePress={onAddIncome}
-        onExpensePress={onAddExpense}
-        onTransferPress={onTransfer}
       />
 
       {/* Integrated Pockets: "My Wallets" Section */}
@@ -173,10 +163,28 @@ export function DashboardScreen({
         </View>
       </View>
     </ScrollView>
+
+    {/* Floating Action Button */}
+    <ActionFAB
+      isOpen={isActionSheetOpen}
+      onPress={() => setIsActionSheetOpen(true)}
+    />
+
+    {/* Action Sheet Modal */}
+    <ActionSheetModal
+      visible={isActionSheetOpen}
+      onClose={() => setIsActionSheetOpen(false)}
+      onSuccess={refreshDashboard}
+    />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screenRoot: {
+    flex: 1,
+    backgroundColor: '#09090B',
+  },
   container: {
     flex: 1,
     backgroundColor: '#09090B',
