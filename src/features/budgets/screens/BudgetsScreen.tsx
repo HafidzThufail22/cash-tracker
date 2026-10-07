@@ -7,6 +7,7 @@ import {
   StyleSheet,
   RefreshControl,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { Plus, PiggyBank, Sparkles } from 'lucide-react-native';
 import { useBudgets } from '../hooks/useBudgets';
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: 16,
     paddingTop: 8,
-    paddingBottom: 110,
+    paddingBottom: Platform.OS === 'ios' ? 88 : 80,
     gap: 14,
   },
   addButton: {

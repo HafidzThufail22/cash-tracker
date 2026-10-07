@@ -12,6 +12,7 @@ import {
 interface DashboardState {
   selectedYear: number;
   selectedMonth: number;
+  selectedWalletId: string | null; // null: Semua Kantong
   availableMonths: AvailableMonth[];
   isBalanceHidden: boolean;
   totalNetBalance: number;
@@ -22,6 +23,7 @@ interface DashboardState {
   isLoading: boolean;
 
   setPeriod: (year: number, month: number) => void;
+  setWalletId: (walletId: string | null) => void;
   toggleBalanceHidden: () => void;
   refreshDashboard: () => Promise<void>;
   initDashboard: () => Promise<void>;
@@ -30,6 +32,7 @@ interface DashboardState {
 export const useDashboardStore = create<DashboardState>((set, get) => ({
   selectedYear: new Date().getFullYear(),
   selectedMonth: new Date().getMonth() + 1,
+  selectedWalletId: null,
   availableMonths: [],
   isBalanceHidden: false,
   totalNetBalance: 0,
@@ -44,6 +47,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     get().refreshDashboard();
   },
 
+  setWalletId: (walletId: string | null) => {
+    set({ selectedWalletId: walletId });
+    get().refreshDashboard();
+  },
+
   toggleBalanceHidden: () => {
     set((state) => ({ isBalanceHidden: !state.isBalanceHidden }));
   },
@@ -51,17 +59,23 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   refreshDashboard: async () => {
     set({ isLoading: true });
     try {
-      const { selectedYear, selectedMonth } = get();
+      const { selectedYear, selectedMonth, selectedWalletId } = get();
 
       const [walletsData, monthlyData, recentData, monthsData] = await Promise.all([
         getWalletsWithBalance(),
-        getMonthlySummary(selectedYear, selectedMonth),
-        getRecentTransactions(8),
+        getMonthlySummary(selectedYear, selectedMonth, selectedWalletId),
+        getRecentTransactions(8, selectedWalletId),
         getAvailableTransactionMonths(),
       ]);
 
+      let displayedBalance = walletsData.totalNetBalance;
+      if (selectedWalletId) {
+        const found = walletsData.wallets.find((w) => w.id === selectedWalletId);
+        displayedBalance = found ? found.balance : 0;
+      }
+
       set({
-        totalNetBalance: walletsData.totalNetBalance,
+        totalNetBalance: displayedBalance,
         wallets: walletsData.wallets,
         monthlyIncome: monthlyData.totalIncome,
         monthlyExpense: monthlyData.totalExpense,
@@ -91,4 +105,3 @@ export function useDashboardSummary() {
   const store = useDashboardStore();
   return store;
 }
-

@@ -8,6 +8,7 @@ interface MonthPickerChipsProps {
   selectedYear: number;
   selectedMonth: number;
   onSelectMonth: (year: number, month: number) => void;
+  onOpenCalendarModal?: () => void;
 }
 
 export function MonthPickerChips({
@@ -15,11 +16,22 @@ export function MonthPickerChips({
   selectedYear,
   selectedMonth,
   onSelectMonth,
+  onOpenCalendarModal,
 }: MonthPickerChipsProps) {
-  if (months.length === 0) return null;
-
   return (
     <View style={styles.container}>
+      {onOpenCalendarModal && (
+        <TouchableOpacity
+          style={styles.calendarTriggerBtn}
+          onPress={onOpenCalendarModal}
+          activeOpacity={0.7}
+          accessibilityLabel="Pilih bulan dan tahun"
+          accessibilityRole="button"
+        >
+          <Calendar size={17} color="#FFD165" strokeWidth={2.2} />
+        </TouchableOpacity>
+      )}
+
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -35,7 +47,6 @@ export function MonthPickerChips({
               onPress={() => onSelectMonth(item.year, item.month)}
               activeOpacity={0.75}
             >
-              {isSelected && <Calendar size={13} color="#09090B" style={styles.chipIcon} />}
               <Text
                 style={[
                   styles.chipText,
@@ -54,17 +65,30 @@ export function MonthPickerChips({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 4,
+    marginVertical: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  calendarTriggerBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#18181B',
+    borderWidth: 1,
+    borderColor: '#27272A',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   scrollContent: {
-    paddingHorizontal: 16,
     gap: 8,
     alignItems: 'center',
+    paddingRight: 8,
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
+    paddingHorizontal: 13,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
@@ -80,14 +104,11 @@ const styles = StyleSheet.create({
   },
   chipUnselected: {
     backgroundColor: '#18181B',
-    borderColor: 'rgba(79, 70, 51, 0.35)',
-  },
-  chipIcon: {
-    marginRight: 6,
+    borderColor: '#27272A',
   },
   chipText: {
     fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 12,
+    fontSize: 11,
     letterSpacing: 0.3,
   },
   chipTextSelected: {

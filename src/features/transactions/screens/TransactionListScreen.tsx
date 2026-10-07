@@ -7,6 +7,7 @@ import {
   RefreshControl,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { History, FileQuestion, RotateCcw } from 'lucide-react-native';
 import { useTransactions } from '../hooks/useTransactions';
@@ -18,6 +19,8 @@ import { TransactionItem } from '../components/TransactionItem';
 import { TransactionDetailModal } from '../components/TransactionDetailModal';
 import { RecentTransactionItem } from '../../../database/repositories/transactionRepo';
 import { formatRupiah } from '../../../utils/currency';
+
+import { PeriodPickerModal } from '../../dashboard/components/PeriodPickerModal';
 
 export function TransactionListScreen() {
   const {
@@ -39,6 +42,7 @@ export function TransactionListScreen() {
 
   const [selectedItemForDetail, setSelectedItemForDetail] =
     useState<RecentTransactionItem | null>(null);
+  const [isPeriodModalOpen, setIsPeriodModalOpen] = useState(false);
 
   const hasActiveFilters = selectedType !== 'all' || searchQuery.trim().length > 0;
 
@@ -62,12 +66,13 @@ export function TransactionListScreen() {
           />
         }
       >
-        {/* 1. Horizontal Month Filter Chips */}
+        {/* 1. Horizontal Month Filter Chips with Calendar Modal Button */}
         <MonthPickerChips
           months={availableMonths}
           selectedYear={selectedYear}
           selectedMonth={selectedMonth}
           onSelectMonth={setSelectedPeriod}
+          onOpenCalendarModal={() => setIsPeriodModalOpen(true)}
         />
 
         {/* 2. Text Search Bar */}
@@ -168,6 +173,16 @@ export function TransactionListScreen() {
         onClose={() => setSelectedItemForDetail(null)}
         onDelete={deleteTransaction}
       />
+
+      {/* Period Picker Modal (Bulan & Tahun) */}
+      <PeriodPickerModal
+        visible={isPeriodModalOpen}
+        selectedYear={selectedYear}
+        selectedMonth={selectedMonth}
+        months={availableMonths}
+        onClose={() => setIsPeriodModalOpen(false)}
+        onSelectMonth={setSelectedPeriod}
+      />
     </View>
   );
 }
@@ -182,7 +197,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingTop: 8,
-    paddingBottom: 110,
+    paddingBottom: Platform.OS === 'ios' ? 88 : 80,
     gap: 8,
   },
   listSection: {

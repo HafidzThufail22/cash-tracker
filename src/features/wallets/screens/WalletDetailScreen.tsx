@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import {
   ArrowLeft,
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 110,
+    paddingBottom: Platform.OS === 'ios' ? 88 : 80,
     gap: 16,
   },
   navBar: {

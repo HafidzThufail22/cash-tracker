@@ -75,8 +75,8 @@ export function ActionFAB({ isOpen, onPress }: ActionFABProps) {
 const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 108 : 96,
-    right: 20,
+    bottom: Platform.OS === 'ios' ? 76 : 68,
+    right: 16,
     zIndex: 200,
   },
   fab: {

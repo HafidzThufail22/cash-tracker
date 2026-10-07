@@ -6,20 +6,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
+  Platform,
 } from 'react-native';
-import {
-  Calendar,
-  ChevronDown,
-  Wallet as WalletIcon,
-  ChevronRight,
-  TrendingUp,
-} from 'lucide-react-native';
+import { Calendar, TrendingUp } from 'lucide-react-native';
 import { useDashboardSummary } from '../hooks/useDashboardSummary';
 import { TotalBalanceCard } from '../components/TotalBalanceCard';
 import { ActionFAB } from '../components/ActionFAB';
 import { ActionSheetModal } from '../components/ActionSheetModal';
 import { PeriodPickerModal } from '../components/PeriodPickerModal';
-import { WalletCard, NewPocketCard } from '../../wallets/components/WalletCard';
+import { WalletPickerModal } from '../components/WalletPickerModal';
 import { RecentTransactions } from '../components/RecentTransactions';
 import { formatPeriodLabel } from '../../../utils/date';
 
@@ -29,14 +24,16 @@ interface DashboardScreenProps {
 }
 
 export function DashboardScreen({
-  onNavigateToWallets,
   onNavigateToHistory,
 }: DashboardScreenProps) {
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
   const [isPeriodModalOpen, setIsPeriodModalOpen] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+
   const {
     selectedYear,
     selectedMonth,
+    selectedWalletId,
     availableMonths,
     isBalanceHidden,
     totalNetBalance,
@@ -46,6 +43,7 @@ export function DashboardScreen({
     recentTransactions,
     isLoading,
     setPeriod,
+    setWalletId,
     toggleBalanceHidden,
     refreshDashboard,
     initDashboard,
@@ -55,140 +53,132 @@ export function DashboardScreen({
     initDashboard();
   }, []);
 
+  const selectedWallet = wallets.find((w) => w.id === selectedWalletId);
+
   return (
     <View style={styles.screenRoot}>
       <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl
-          refreshing={isLoading}
-          onRefresh={refreshDashboard}
-          tintColor="#FFD165"
-          colors={['#FFD165']}
-        />
-      }
-    >
-      {/* Top Greeting & Period Switcher */}
-      <View style={styles.topRow}>
-        <View>
-          <Text style={styles.welcomeText}>Welcome back,</Text>
-          <Text style={styles.userName}>Hafidz Thufail</Text>
-        </View>
-
-        <View style={styles.periodActions}>
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={refreshDashboard}
+            tintColor="#FFD165"
+            colors={['#FFD165']}
+          />
+        }
+      >
+        {/* Horizontal Month Filter Bar (Calendar Button + Scrollable Chips) */}
+        <View style={styles.filterRow}>
           <TouchableOpacity
-            style={styles.periodPill}
+            style={styles.calendarTriggerBtn}
             onPress={() => setIsPeriodModalOpen(true)}
             activeOpacity={0.7}
+            accessibilityLabel="Pilih bulan dan tahun"
+            accessibilityRole="button"
           >
-            <Calendar size={14} color="#FFD165" />
-            <Text style={styles.periodText}>
-              {formatPeriodLabel(selectedYear, selectedMonth)}
-            </Text>
-            <ChevronDown size={14} color="#71717A" />
+            <Calendar size={17} color="#FFD165" strokeWidth={2.2} />
           </TouchableOpacity>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chipsScrollContent}
+          >
+            {availableMonths.map((item) => {
+              const isSelected = item.year === selectedYear && item.month === selectedMonth;
+
+              return (
+                <TouchableOpacity
+                  key={item.key}
+                  style={[
+                    styles.chip,
+                    isSelected ? styles.chipSelected : styles.chipUnselected,
+                  ]}
+                  onPress={() => setPeriod(item.year, item.month)}
+                  activeOpacity={0.75}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      isSelected ? styles.chipTextSelected : styles.chipTextUnselected,
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
         </View>
-      </View>
 
-      {/* Hero Net Balance Card */}
-      <TotalBalanceCard
-        totalBalance={totalNetBalance}
-        monthlyIncome={monthlyIncome}
-        monthlyExpense={monthlyExpense}
-        isBalanceHidden={isBalanceHidden}
-        onToggleBalance={toggleBalanceHidden}
-      />
+        {/* Hero Net Balance Card (dengan Dropdown Filter Wallet di samping Icon Mata) */}
+        <TotalBalanceCard
+          totalBalance={totalNetBalance}
+          monthlyIncome={monthlyIncome}
+          monthlyExpense={monthlyExpense}
+          isBalanceHidden={isBalanceHidden}
+          onToggleBalance={toggleBalanceHidden}
+          selectedWalletName={selectedWallet?.name}
+          selectedWalletColor={selectedWallet?.color}
+          onOpenWalletPicker={() => setIsWalletModalOpen(true)}
+        />
 
-      {/* Integrated Pockets: "My Wallets" Section */}
-      <View style={styles.walletsSection}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.titleWithBadge}>
-            <WalletIcon size={18} color="#FFD165" strokeWidth={2.2} />
-            <Text style={styles.sectionTitle}>My Wallets</Text>
-            <View style={styles.countBadge}>
-              <Text style={styles.countBadgeText}>{wallets.length}</Text>
-            </View>
+        {/* Recent Activity / Transactions Section */}
+        <RecentTransactions
+          transactions={recentTransactions}
+          onViewAllPress={onNavigateToHistory}
+        />
+
+        {/* Micro-Insight Banner */}
+        <View style={styles.insightBanner}>
+          <View style={styles.insightIconCircle}>
+            <TrendingUp size={16} color="#FFD165" strokeWidth={2.5} />
           </View>
-
-          <TouchableOpacity
-            style={styles.seeAllButton}
-            onPress={onNavigateToWallets}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.seeAllText}>See All</Text>
-            <ChevronRight size={14} color="#FFD165" />
-          </TouchableOpacity>
+          <View style={styles.insightTextContainer}>
+            <Text style={styles.insightTitle}>Ringkasan Pengeluaran</Text>
+            <Text style={styles.insightDesc}>
+              {monthlyExpense === 0
+                ? 'Belum ada catatan pengeluaran bulan ini. Keuangan tetap stabil!'
+                : `Total arus kas keluar terpantau pada periode ${formatPeriodLabel(selectedYear, selectedMonth)}.`}
+            </Text>
+          </View>
         </View>
+      </ScrollView>
 
-        {/* Horizontal Pockets Slider */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.walletsSliderContent}
-        >
-          {wallets.map((wallet) => (
-            <WalletCard
-              key={wallet.id}
-              id={wallet.id}
-              name={wallet.name}
-              type={wallet.type}
-              balance={wallet.balance}
-              color={wallet.color}
-              icon={wallet.icon}
-              isBalanceHidden={isBalanceHidden}
-              onPress={onNavigateToWallets}
-            />
-          ))}
-          <NewPocketCard onPress={onNavigateToWallets} />
-        </ScrollView>
-      </View>
-
-      {/* Recent Activity / Transactions Section */}
-      <RecentTransactions
-        transactions={recentTransactions}
-        onViewAllPress={onNavigateToHistory}
+      {/* Floating Action Button (Mepet Menu Bar Bawah) */}
+      <ActionFAB
+        isOpen={isActionSheetOpen}
+        onPress={() => setIsActionSheetOpen(true)}
       />
 
-      {/* Financial Intelligence Micro-Insight Banner */}
-      <View style={styles.insightBanner}>
-        <View style={styles.insightIconCircle}>
-          <TrendingUp size={16} color="#FFD165" strokeWidth={2.5} />
-        </View>
-        <View style={styles.insightTextContainer}>
-          <Text style={styles.insightTitle}>Spending Pace</Text>
-          <Text style={styles.insightDesc}>
-            {monthlyExpense === 0
-              ? 'Pengeluaran bulan ini masih 0. Pertahankan kebiasaan menabung!'
-              : `Total pengeluaran tercatat terkontrol di periode ${formatPeriodLabel(selectedYear, selectedMonth)}.`}
-          </Text>
-        </View>
-      </View>
-    </ScrollView>
+      {/* Action Sheet Modal */}
+      <ActionSheetModal
+        visible={isActionSheetOpen}
+        onClose={() => setIsActionSheetOpen(false)}
+        onSuccess={refreshDashboard}
+      />
 
-    {/* Floating Action Button */}
-    <ActionFAB
-      isOpen={isActionSheetOpen}
-      onPress={() => setIsActionSheetOpen(true)}
-    />
+      {/* Period Picker Modal (Pilihan Bulan & Tahun) */}
+      <PeriodPickerModal
+        visible={isPeriodModalOpen}
+        selectedYear={selectedYear}
+        selectedMonth={selectedMonth}
+        months={availableMonths}
+        onClose={() => setIsPeriodModalOpen(false)}
+        onSelectMonth={setPeriod}
+      />
 
-    {/* Action Sheet Modal */}
-    <ActionSheetModal
-      visible={isActionSheetOpen}
-      onClose={() => setIsActionSheetOpen(false)}
-      onSuccess={refreshDashboard}
-    />
-
-    {/* Period Picker Modal */}
-    <PeriodPickerModal
-      visible={isPeriodModalOpen}
-      selectedYear={selectedYear}
-      selectedMonth={selectedMonth}
-      months={availableMonths}
-      onClose={() => setIsPeriodModalOpen(false)}
-      onSelectMonth={setPeriod}
-    />
+      {/* Wallet Picker Modal (Dropdown Filter Kantong) */}
+      <WalletPickerModal
+        visible={isWalletModalOpen}
+        wallets={wallets}
+        selectedWalletId={selectedWalletId}
+        onClose={() => setIsWalletModalOpen(false)}
+        onSelectWallet={(id) => setWalletId(id)}
+      />
     </View>
   );
 }
@@ -204,111 +194,78 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 110,
-    gap: 16,
+    paddingTop: 10,
+    paddingBottom: Platform.OS === 'ios' ? 88 : 80,
+    gap: 14,
   },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  welcomeText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 12,
-    color: '#D3C5AC',
-  },
-  userName: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 18,
-    color: '#F4F4F5',
-    letterSpacing: -0.3,
-  },
-  periodActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  periodPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: '#1B1B1E',
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.4)',
-  },
-  periodText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    color: '#F4F4F5',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  walletsSection: {
-    marginTop: 4,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 2,
-    marginBottom: 10,
-  },
-  titleWithBadge: {
+  filterRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginVertical: 2,
   },
-  sectionTitle: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 16,
-    color: '#F4F4F5',
-    letterSpacing: -0.2,
+  calendarTriggerBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#18181B',
+    borderWidth: 1,
+    borderColor: '#27272A',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  countBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 10,
-    backgroundColor: '#2A2A2D',
+  chipsScrollContent: {
+    gap: 8,
+    alignItems: 'center',
+    paddingRight: 8,
   },
-  countBadgeText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    color: '#A1A1AA',
-  },
-  seeAllButton: {
+  chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    paddingHorizontal: 13,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
   },
-  seeAllText: {
+  chipSelected: {
+    backgroundColor: '#EAB308',
+    borderColor: '#EAB308',
+    shadowColor: '#EAB308',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  chipUnselected: {
+    backgroundColor: '#18181B',
+    borderColor: '#27272A',
+  },
+  chipText: {
     fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 11,
-    color: '#FFD165',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
+    letterSpacing: 0.3,
   },
-  walletsSliderContent: {
-    paddingRight: 16,
-    paddingVertical: 2,
+  chipTextSelected: {
+    color: '#09090B',
+    fontWeight: '700',
+  },
+  chipTextUnselected: {
+    color: '#A1A1AA',
   },
   insightBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     padding: 14,
-    borderRadius: 16,
+    borderRadius: 14,
     backgroundColor: '#18181B',
     borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.3)',
+    borderColor: '#27272A',
   },
   insightIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: 'rgba(234, 179, 8, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -332,4 +289,3 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
 });
-

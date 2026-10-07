@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexGrow: 1,
-    paddingBottom: 110, // Memberikan ruang cukup agar tidak tertutup floating bottom tab bar
+    paddingBottom: Platform.OS === 'ios' ? 88 : 80,
   },
 });
 

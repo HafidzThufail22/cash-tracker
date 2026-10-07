@@ -34,8 +34,11 @@ export interface TransactionFilterOptions {
 
 const toWallets = alias(wallets, 'to_wallets');
 
-export async function getRecentTransactions(limit: number = 10): Promise<RecentTransactionItem[]> {
-  const rows = await db
+export async function getRecentTransactions(
+  limit: number = 10,
+  walletId?: string | null
+): Promise<RecentTransactionItem[]> {
+  const baseQuery = db
     .select({
       id: transactions.id,
       walletId: transactions.walletId,
@@ -53,9 +56,16 @@ export async function getRecentTransactions(limit: number = 10): Promise<RecentT
     .from(transactions)
     .innerJoin(wallets, eq(transactions.walletId, wallets.id))
     .leftJoin(toWallets, eq(transactions.toWalletId, toWallets.id))
-    .leftJoin(categories, eq(transactions.categoryId, categories.id))
-    .orderBy(desc(transactions.date))
-    .limit(limit);
+    .leftJoin(categories, eq(transactions.categoryId, categories.id));
+
+  const rows = walletId
+    ? await baseQuery
+        .where(or(eq(transactions.walletId, walletId), eq(transactions.toWalletId, walletId)))
+        .orderBy(desc(transactions.date))
+        .limit(limit)
+    : await baseQuery
+        .orderBy(desc(transactions.date))
+        .limit(limit);
 
   return rows.map((r) => ({
     id: r.id,
@@ -75,24 +85,26 @@ export async function getRecentTransactions(limit: number = 10): Promise<RecentT
 
 export async function getMonthlySummary(
   year: number,
-  month: number
+  month: number,
+  walletId?: string | null
 ): Promise<{ totalIncome: number; totalExpense: number }> {
   const monthStr = month.toString().padStart(2, '0');
   const pattern = `${year}-${monthStr}%`;
+  const walletCond = walletId ? sql` AND ${transactions.walletId} = ${walletId}` : sql``;
 
   const incomeRes = await db
     .select({
       total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`,
     })
     .from(transactions)
-    .where(sql`${transactions.type} = 0 AND ${transactions.date} LIKE ${pattern}`);
+    .where(sql`${transactions.type} = 0 AND ${transactions.date} LIKE ${pattern}${walletCond}`);
 
   const expenseRes = await db
     .select({
       total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`,
     })
     .from(transactions)
-    .where(sql`${transactions.type} = 1 AND ${transactions.date} LIKE ${pattern}`);
+    .where(sql`${transactions.type} = 1 AND ${transactions.date} LIKE ${pattern}${walletCond}`);
 
   return {
     totalIncome: Number(incomeRes[0]?.total || 0),
