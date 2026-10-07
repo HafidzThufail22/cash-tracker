@@ -23,6 +23,9 @@ import { DashboardScreen } from './src/features/dashboard/screens/DashboardScree
 import { WalletsScreen } from './src/features/wallets/screens/WalletsScreen';
 import { TransactionListScreen } from './src/features/transactions/screens/TransactionListScreen';
 import { BudgetsScreen } from './src/features/budgets/screens/BudgetsScreen';
+import { SettingsScreen } from './src/features/settings/screens/SettingsScreen';
+import { NotificationSheetModal } from './src/features/dashboard/components/NotificationSheetModal';
+import { getBudgetsWithUsage } from './src/database/repositories/budgetRepo';
 import { importLegacyData } from './src/database/importer/legacyJsonImporter';
 
 export default function App() {
@@ -42,6 +45,23 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<TabRoute>('dashboard');
   const [openTransferImmediate, setOpenTransferImmediate] = useState(false);
 
+  // Notifikasi & Alert state
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [hasAlerts, setHasAlerts] = useState(false);
+
+  const checkAlerts = async () => {
+    try {
+      const now = new Date();
+      const res = await getBudgetsWithUsage(now.getFullYear(), now.getMonth() + 1);
+      const alertExists = res.budgets.some(
+        (b) => b.status === 'overbudget' || b.status === 'warning'
+      );
+      setHasAlerts(alertExists);
+    } catch (err) {
+      console.error('Pemeriksaan alert gagal:', err);
+    }
+  };
+
   useEffect(() => {
     async function setupApp() {
       try {
@@ -53,6 +73,7 @@ export default function App() {
           console.warn('Status migrasi:', migrationRes.message);
         }
         setIsDbReady(true);
+        checkAlerts();
       } catch (err) {
         console.error('Inisialisasi aplikasi gagal:', err);
         setIsDbReady(true);
@@ -61,6 +82,12 @@ export default function App() {
 
     setupApp();
   }, []);
+
+  useEffect(() => {
+    if (isDbReady) {
+      checkAlerts();
+    }
+  }, [currentTab, isDbReady]);
 
   if (!fontsLoaded || !isDbReady) {
     return (
@@ -80,11 +107,15 @@ export default function App() {
             currentTab === 'dashboard'
               ? 'Dashboard'
               : currentTab === 'wallets'
-              ? 'Wallets'
-              : currentTab === 'transactions'
-              ? 'Activity History'
-              : 'Budgets'
+                ? 'Wallets'
+                : currentTab === 'transactions'
+                  ? 'Activity History'
+                  : currentTab === 'budgets'
+                    ? 'Budgets'
+                    : 'Pengaturan'
           }
+          hasAlerts={hasAlerts}
+          onNotificationPress={() => setShowNotificationModal(true)}
         />
 
         <View style={styles.mainContent}>
@@ -100,14 +131,29 @@ export default function App() {
             />
           ) : currentTab === 'transactions' ? (
             <TransactionListScreen />
-          ) : (
+          ) : currentTab === 'budgets' ? (
             <BudgetsScreen />
+          ) : (
+            <SettingsScreen onDataRestored={() => checkAlerts()} />
           )}
         </View>
 
         <BottomTabs
           currentTab={currentTab}
           onTabChange={(tab) => setCurrentTab(tab)}
+        />
+
+        {/* Modal Notifikasi / Alert Center */}
+        <NotificationSheetModal
+          visible={showNotificationModal}
+          onClose={() => {
+            setShowNotificationModal(false);
+            checkAlerts();
+          }}
+          onNavigateToBudgets={() => {
+            setShowNotificationModal(false);
+            setCurrentTab('budgets');
+          }}
         />
       </ScreenWrapper>
     </SafeAreaProvider>
@@ -138,23 +184,4 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
-  placeholderContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  placeholderTitle: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 20,
-    color: '#F4F4F5',
-    marginBottom: 8,
-  },
-  placeholderDesc: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 14,
-    color: '#71717A',
-    textAlign: 'center',
-  },
 });
-

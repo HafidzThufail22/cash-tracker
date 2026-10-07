@@ -1,19 +1,19 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Bell, User } from 'lucide-react-native';
+import { Bell } from 'lucide-react-native';
 
 interface HeaderProps {
   title?: string;
   subtitle?: string;
   onNotificationPress?: () => void;
-  onProfilePress?: () => void;
+  hasAlerts?: boolean;
 }
 
 export function Header({
   title = 'Dashboard',
   subtitle = 'Cash Tracker',
   onNotificationPress,
-  onProfilePress,
+  hasAlerts = false,
 }: HeaderProps) {
   return (
     <View style={styles.container}>
@@ -23,20 +23,16 @@ export function Header({
       </View>
       <View style={styles.actionsContainer}>
         <TouchableOpacity
-          style={styles.iconButton}
+          style={styles.touchTarget}
           onPress={onNotificationPress}
           activeOpacity={0.7}
-          accessibilityLabel="Notifications"
+          accessibilityLabel="Notifikasi dan Pengingat"
+          accessibilityRole="button"
         >
-          <Bell size={20} color="#A1A1AA" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.avatarButton}
-          onPress={onProfilePress}
-          activeOpacity={0.8}
-          accessibilityLabel="Profile"
-        >
-          <User size={18} color="#09090B" strokeWidth={2.5} />
+          <View style={styles.iconButton}>
+            <Bell size={20} color="#D4D4D8" strokeWidth={2} />
+            {hasAlerts && <View style={styles.alertBadge} />}
+          </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -45,7 +41,9 @@ export function Header({
 
 const styles = StyleSheet.create({
   container: {
-    height: 60,
+    minHeight: 70,
+    paddingTop: 12,
+    paddingBottom: 12,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
@@ -56,25 +54,31 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     justifyContent: 'center',
+    flex: 1,
   },
   subtitle: {
     fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 10,
     textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    color: '#9B8F79',
-    marginBottom: 2,
+    letterSpacing: 1.5,
+    color: '#A1A1AA',
+    marginBottom: 4,
   },
   title: {
     fontFamily: 'Manrope_700Bold',
-    fontSize: 20,
-    letterSpacing: -0.3,
+    fontSize: 22,
+    letterSpacing: -0.4,
     color: '#F4F4F5',
   },
   actionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+  },
+  touchTarget: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   iconButton: {
     width: 40,
@@ -85,16 +89,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#18181B',
     borderWidth: 1,
     borderColor: '#27272A',
+    position: 'relative',
   },
-  avatarButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFD165',
+  alertBadge: {
+    position: 'absolute',
+    top: 9,
+    right: 9,
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#EF4444',
     borderWidth: 1.5,
-    borderColor: '#EAB308',
+    borderColor: '#18181B',
   },
 });
-

@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
-import { LayoutDashboard, Wallet, ReceiptText, PieChart } from 'lucide-react-native';
+import { LayoutDashboard, Wallet, ReceiptText, PieChart, Settings } from 'lucide-react-native';
 
-export type TabRoute = 'dashboard' | 'wallets' | 'transactions' | 'budgets';
+export type TabRoute = 'dashboard' | 'wallets' | 'transactions' | 'budgets' | 'settings';
 
 interface BottomTabsProps {
   currentTab: TabRoute;
@@ -30,6 +30,11 @@ export function BottomTabs({ currentTab, onTabChange }: BottomTabsProps) {
       id: 'budgets' as TabRoute,
       label: 'Budgets',
       Icon: PieChart,
+    },
+    {
+      id: 'settings' as TabRoute,
+      label: 'Settings',
+      Icon: Settings,
     },
   ];
 
@@ -81,13 +86,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
     width: '100%',
-    maxWidth: 380,
+    maxWidth: 420,
     height: 64,
     borderRadius: 32,
     backgroundColor: 'rgba(27, 27, 30, 0.94)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.5,

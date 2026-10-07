@@ -4,12 +4,15 @@ import {
   getMonthlySummary,
   getRecentTransactions,
   getLatestTransactionPeriod,
+  getAvailableTransactionMonths,
   RecentTransactionItem,
+  AvailableMonth,
 } from '../../../database/repositories/transactionRepo';
 
 interface DashboardState {
   selectedYear: number;
   selectedMonth: number;
+  availableMonths: AvailableMonth[];
   isBalanceHidden: boolean;
   totalNetBalance: number;
   monthlyIncome: number;
@@ -27,6 +30,7 @@ interface DashboardState {
 export const useDashboardStore = create<DashboardState>((set, get) => ({
   selectedYear: new Date().getFullYear(),
   selectedMonth: new Date().getMonth() + 1,
+  availableMonths: [],
   isBalanceHidden: false,
   totalNetBalance: 0,
   monthlyIncome: 0,
@@ -49,10 +53,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     try {
       const { selectedYear, selectedMonth } = get();
 
-      const [walletsData, monthlyData, recentData] = await Promise.all([
+      const [walletsData, monthlyData, recentData, monthsData] = await Promise.all([
         getWalletsWithBalance(),
         getMonthlySummary(selectedYear, selectedMonth),
         getRecentTransactions(8),
+        getAvailableTransactionMonths(),
       ]);
 
       set({
@@ -61,6 +66,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         monthlyIncome: monthlyData.totalIncome,
         monthlyExpense: monthlyData.totalExpense,
         recentTransactions: recentData,
+        availableMonths: monthsData,
         isLoading: false,
       });
     } catch (error) {

@@ -10,7 +10,6 @@ import {
 import {
   Calendar,
   ChevronDown,
-  Sparkles,
   Wallet as WalletIcon,
   ChevronRight,
   TrendingUp,
@@ -19,6 +18,7 @@ import { useDashboardSummary } from '../hooks/useDashboardSummary';
 import { TotalBalanceCard } from '../components/TotalBalanceCard';
 import { ActionFAB } from '../components/ActionFAB';
 import { ActionSheetModal } from '../components/ActionSheetModal';
+import { PeriodPickerModal } from '../components/PeriodPickerModal';
 import { WalletCard, NewPocketCard } from '../../wallets/components/WalletCard';
 import { RecentTransactions } from '../components/RecentTransactions';
 import { formatPeriodLabel } from '../../../utils/date';
@@ -33,9 +33,11 @@ export function DashboardScreen({
   onNavigateToHistory,
 }: DashboardScreenProps) {
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
+  const [isPeriodModalOpen, setIsPeriodModalOpen] = useState(false);
   const {
     selectedYear,
     selectedMonth,
+    availableMonths,
     isBalanceHidden,
     totalNetBalance,
     monthlyIncome,
@@ -43,6 +45,7 @@ export function DashboardScreen({
     wallets,
     recentTransactions,
     isLoading,
+    setPeriod,
     toggleBalanceHidden,
     refreshDashboard,
     initDashboard,
@@ -75,16 +78,16 @@ export function DashboardScreen({
         </View>
 
         <View style={styles.periodActions}>
-          <TouchableOpacity style={styles.periodPill} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.periodPill}
+            onPress={() => setIsPeriodModalOpen(true)}
+            activeOpacity={0.7}
+          >
             <Calendar size={14} color="#FFD165" />
             <Text style={styles.periodText}>
               {formatPeriodLabel(selectedYear, selectedMonth)}
             </Text>
             <ChevronDown size={14} color="#71717A" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.ambientGlowButton} activeOpacity={0.7}>
-            <Sparkles size={16} color="#FFD165" />
           </TouchableOpacity>
         </View>
       </View>
@@ -176,6 +179,16 @@ export function DashboardScreen({
       onClose={() => setIsActionSheetOpen(false)}
       onSuccess={refreshDashboard}
     />
+
+    {/* Period Picker Modal */}
+    <PeriodPickerModal
+      visible={isPeriodModalOpen}
+      selectedYear={selectedYear}
+      selectedMonth={selectedMonth}
+      months={availableMonths}
+      onClose={() => setIsPeriodModalOpen(false)}
+      onSelectMonth={setPeriod}
+    />
     </View>
   );
 }
@@ -215,7 +228,6 @@ const styles = StyleSheet.create({
   periodActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
   periodPill: {
     flexDirection: 'row',
@@ -234,16 +246,6 @@ const styles = StyleSheet.create({
     color: '#F4F4F5',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-  },
-  ambientGlowButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#1B1B1E',
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   walletsSection: {
     marginTop: 4,
