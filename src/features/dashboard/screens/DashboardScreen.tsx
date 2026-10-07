@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   StyleSheet,
   RefreshControl,
   Platform,
+  Animated,
+  Easing,
 } from 'react-native';
 import { Calendar, TrendingUp } from 'lucide-react-native';
 import { useDashboardSummary } from '../hooks/useDashboardSummary';
@@ -49,9 +51,38 @@ export function DashboardScreen({
     initDashboard,
   } = useDashboardSummary();
 
+  // Animasi halus saat filter bulan atau kantong kas berubah
+  const contentFadeAnim = useRef(new Animated.Value(1)).current;
+  const contentSlideAnim = useRef(new Animated.Value(0)).current;
+  const isFirstLoad = useRef(true);
+
   useEffect(() => {
     initDashboard();
   }, []);
+
+  useEffect(() => {
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      return;
+    }
+
+    contentFadeAnim.setValue(0.4);
+    contentSlideAnim.setValue(5);
+    Animated.parallel([
+      Animated.timing(contentFadeAnim, {
+        toValue: 1,
+        duration: 220,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(contentSlideAnim, {
+        toValue: 0,
+        duration: 220,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [selectedYear, selectedMonth, selectedWalletId]);
 
   const selectedWallet = wallets.find((w) => w.id === selectedWalletId);
 
@@ -114,38 +145,46 @@ export function DashboardScreen({
           </ScrollView>
         </View>
 
-        {/* Hero Net Balance Card (dengan Dropdown Filter Wallet di samping Icon Mata) */}
-        <TotalBalanceCard
-          totalBalance={totalNetBalance}
-          monthlyIncome={monthlyIncome}
-          monthlyExpense={monthlyExpense}
-          isBalanceHidden={isBalanceHidden}
-          onToggleBalance={toggleBalanceHidden}
-          selectedWalletName={selectedWallet?.name}
-          selectedWalletColor={selectedWallet?.color}
-          onOpenWalletPicker={() => setIsWalletModalOpen(true)}
-        />
+        {/* Konten Dinamis Teranimasi Halus saat Filter Berganti */}
+        <Animated.View
+          style={{
+            opacity: contentFadeAnim,
+            transform: [{ translateY: contentSlideAnim }],
+          }}
+        >
+          {/* Hero Net Balance Card (dengan Dropdown Filter Wallet di samping Icon Mata) */}
+          <TotalBalanceCard
+            totalBalance={totalNetBalance}
+            monthlyIncome={monthlyIncome}
+            monthlyExpense={monthlyExpense}
+            isBalanceHidden={isBalanceHidden}
+            onToggleBalance={toggleBalanceHidden}
+            selectedWalletName={selectedWallet?.name}
+            selectedWalletColor={selectedWallet?.color}
+            onOpenWalletPicker={() => setIsWalletModalOpen(true)}
+          />
 
-        {/* Recent Activity / Transactions Section */}
-        <RecentTransactions
-          transactions={recentTransactions}
-          onViewAllPress={onNavigateToHistory}
-        />
+          {/* Recent Activity / Transactions Section */}
+          <RecentTransactions
+            transactions={recentTransactions}
+            onViewAllPress={onNavigateToHistory}
+          />
 
-        {/* Micro-Insight Banner */}
-        <View style={styles.insightBanner}>
-          <View style={styles.insightIconCircle}>
-            <TrendingUp size={16} color="#FFD165" strokeWidth={2.5} />
+          {/* Micro-Insight Banner */}
+          <View style={styles.insightBanner}>
+            <View style={styles.insightIconCircle}>
+              <TrendingUp size={16} color="#FFD165" strokeWidth={2.5} />
+            </View>
+            <View style={styles.insightTextContainer}>
+              <Text style={styles.insightTitle}>Ringkasan Pengeluaran</Text>
+              <Text style={styles.insightDesc}>
+                {monthlyExpense === 0
+                  ? 'Belum ada catatan pengeluaran bulan ini. Keuangan tetap stabil!'
+                  : `Total arus kas keluar terpantau pada periode ${formatPeriodLabel(selectedYear, selectedMonth)}.`}
+              </Text>
+            </View>
           </View>
-          <View style={styles.insightTextContainer}>
-            <Text style={styles.insightTitle}>Ringkasan Pengeluaran</Text>
-            <Text style={styles.insightDesc}>
-              {monthlyExpense === 0
-                ? 'Belum ada catatan pengeluaran bulan ini. Keuangan tetap stabil!'
-                : `Total arus kas keluar terpantau pada periode ${formatPeriodLabel(selectedYear, selectedMonth)}.`}
-            </Text>
-          </View>
-        </View>
+        </Animated.View>
       </ScrollView>
 
       {/* Floating Action Button (Mepet Menu Bar Bawah) */}

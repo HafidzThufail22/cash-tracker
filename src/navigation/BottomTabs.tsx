@@ -1,12 +1,111 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
-import { LayoutDashboard, Wallet, ReceiptText, PieChart, Settings } from 'lucide-react-native';
+import React, { useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  Animated,
+} from 'react-native';
+import {
+  LayoutDashboard,
+  Wallet,
+  ReceiptText,
+  PieChart,
+  Settings,
+} from 'lucide-react-native';
 
 export type TabRoute = 'dashboard' | 'wallets' | 'transactions' | 'budgets' | 'settings';
 
 interface BottomTabsProps {
   currentTab: TabRoute;
   onTabChange: (tab: TabRoute) => void;
+}
+
+interface TabItemProps {
+  label: string;
+  Icon: React.ComponentType<{ size: number; color: string; strokeWidth: number }>;
+  isActive: boolean;
+  onPress: () => void;
+}
+
+function TabItem({ label, Icon, isActive, onPress }: TabItemProps) {
+  const scaleAnim = useRef(new Animated.Value(isActive ? 1 : 0.95)).current;
+  const dotAnim = useRef(new Animated.Value(isActive ? 1 : 0)).current;
+
+  useEffect(() => {
+    if (isActive) {
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(scaleAnim, {
+            toValue: 1.15,
+            duration: 120,
+            useNativeDriver: true,
+          }),
+          Animated.spring(scaleAnim, {
+            toValue: 1,
+            friction: 5,
+            tension: 90,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.spring(dotAnim, {
+          toValue: 1,
+          friction: 6,
+          tension: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(scaleAnim, {
+          toValue: 0.95,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(dotAnim, {
+          toValue: 0,
+          duration: 80,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isActive]);
+
+  return (
+    <TouchableOpacity
+      style={styles.tabButton}
+      onPress={onPress}
+      activeOpacity={0.75}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: isActive }}
+    >
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <Icon
+          size={21}
+          color={isActive ? '#FFD165' : '#71717A'}
+          strokeWidth={isActive ? 2.4 : 1.8}
+        />
+      </Animated.View>
+      <Text
+        style={[styles.tabLabel, isActive && styles.activeTabLabel]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.8}
+      >
+        {label}
+      </Text>
+      <Animated.View
+        style={[
+          styles.activeIndicator,
+          {
+            opacity: dotAnim,
+            transform: [{ scale: dotAnim }],
+          },
+        ]}
+      />
+    </TouchableOpacity>
+  );
 }
 
 export function BottomTabs({ currentTab, onTabChange }: BottomTabsProps) {
@@ -41,36 +140,15 @@ export function BottomTabs({ currentTab, onTabChange }: BottomTabsProps) {
   return (
     <View style={styles.floatingWrapper} pointerEvents="box-none">
       <View style={styles.pillContainer}>
-        {tabs.map((tab) => {
-          const isActive = currentTab === tab.id;
-          const IconComponent = tab.Icon;
-
-          return (
-            <TouchableOpacity
-              key={tab.id}
-              style={styles.tabButton}
-              onPress={() => onTabChange(tab.id)}
-              activeOpacity={0.7}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: isActive }}
-            >
-              <IconComponent
-                size={21}
-                color={isActive ? '#FFD165' : '#71717A'}
-                strokeWidth={isActive ? 2.4 : 1.8}
-              />
-              <Text
-                style={[styles.tabLabel, isActive && styles.activeTabLabel]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-              >
-                {tab.label}
-              </Text>
-              {isActive && <View style={styles.activeIndicator} />}
-            </TouchableOpacity>
-          );
-        })}
+        {tabs.map((tab) => (
+          <TabItem
+            key={tab.id}
+            label={tab.label}
+            Icon={tab.Icon}
+            isActive={currentTab === tab.id}
+            onPress={() => onTabChange(tab.id)}
+          />
+        ))}
       </View>
     </View>
   );

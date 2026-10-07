@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, Animated, Easing } from 'react-native';
 import { useFonts } from 'expo-font';
 import {
   SpaceGrotesk_600SemiBold,
@@ -89,6 +89,29 @@ export default function App() {
     }
   }, [currentTab, isDbReady]);
 
+  // Transisi halus antar-screen tab (Hook dideklarasikan sebelum early return)
+  const screenFadeAnim = React.useRef(new Animated.Value(1)).current;
+  const screenTranslateAnim = React.useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    screenFadeAnim.setValue(0.35);
+    screenTranslateAnim.setValue(6);
+    Animated.parallel([
+      Animated.timing(screenFadeAnim, {
+        toValue: 1,
+        duration: 200,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(screenTranslateAnim, {
+        toValue: 0,
+        duration: 200,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [currentTab]);
+
   if (!fontsLoaded || !isDbReady) {
     return (
       <View style={styles.loadingContainer}>
@@ -118,7 +141,15 @@ export default function App() {
           onNotificationPress={() => setShowNotificationModal(true)}
         />
 
-        <View style={styles.mainContent}>
+        <Animated.View
+          style={[
+            styles.mainContent,
+            {
+              opacity: screenFadeAnim,
+              transform: [{ translateY: screenTranslateAnim }],
+            },
+          ]}
+        >
           {currentTab === 'dashboard' ? (
             <DashboardScreen
               onNavigateToWallets={() => setCurrentTab('wallets')}
@@ -136,7 +167,7 @@ export default function App() {
           ) : (
             <SettingsScreen onDataRestored={() => checkAlerts()} />
           )}
-        </View>
+        </Animated.View>
 
         <BottomTabs
           currentTab={currentTab}

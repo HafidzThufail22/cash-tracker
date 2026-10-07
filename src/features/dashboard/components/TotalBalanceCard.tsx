@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Eye, EyeOff, ArrowUpRight, ArrowDownLeft, ChevronDown } from 'lucide-react-native';
 import { formatRupiah } from '../../../utils/currency';
 
@@ -25,6 +25,18 @@ export function TotalBalanceCard({
   onOpenWalletPicker,
 }: TotalBalanceCardProps) {
   const displayBalance = isBalanceHidden ? '••••••••' : formatRupiah(totalBalance, false);
+
+  // Animasi transisi halus saat saldo berubah atau di-toggle
+  const balanceFadeAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    balanceFadeAnim.setValue(0.55);
+    Animated.timing(balanceFadeAnim, {
+      toValue: 1,
+      duration: 180,
+      useNativeDriver: true,
+    }).start();
+  }, [totalBalance, isBalanceHidden, selectedWalletName]);
 
   return (
     <View style={styles.cardContainer}>
@@ -76,8 +88,8 @@ export function TotalBalanceCard({
           </View>
         </View>
 
-        {/* Balance Nominal Display */}
-        <View style={styles.balanceRow}>
+        {/* Balance Nominal Display (dengan Transisi Halus) */}
+        <Animated.View style={[styles.balanceRow, { opacity: balanceFadeAnim }]}>
           <Text style={styles.currencyPrefix}>Rp</Text>
           <Text
             style={[
@@ -89,7 +101,7 @@ export function TotalBalanceCard({
           >
             {displayBalance}
           </Text>
-        </View>
+        </Animated.View>
 
         {/* Hairline Divider */}
         <View style={styles.divider} />
