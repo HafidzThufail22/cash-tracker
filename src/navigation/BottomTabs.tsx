@@ -54,15 +54,20 @@ export function BottomTabs({ currentTab, onTabChange }: BottomTabsProps) {
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive }}
             >
-              {isActive && <View style={styles.activeIndicator} />}
               <IconComponent
-                size={22}
+                size={21}
                 color={isActive ? '#FFD165' : '#71717A'}
-                strokeWidth={isActive ? 2.5 : 1.8}
+                strokeWidth={isActive ? 2.4 : 1.8}
               />
-              <Text style={[styles.tabLabel, isActive && styles.activeTabLabel]}>
+              <Text
+                style={[styles.tabLabel, isActive && styles.activeTabLabel]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
                 {tab.label}
               </Text>
+              {isActive && <View style={styles.activeIndicator} />}
             </TouchableOpacity>
           );
         })}
@@ -78,7 +83,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     zIndex: 100,
   },
   pillContainer: {
@@ -92,7 +97,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(27, 27, 30, 0.94)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.5,
@@ -105,30 +110,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+    paddingHorizontal: 2,
   },
   activeIndicator: {
     position: 'absolute',
-    top: 6,
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
+    bottom: 6,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: '#FFD165',
     shadowColor: '#EAB308',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
-    shadowRadius: 4,
+    shadowRadius: 3,
     elevation: 3,
   },
   tabLabel: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    letterSpacing: 0.2,
+    fontFamily: 'Manrope_600SemiBold',
+    fontSize: 9.5,
     color: '#71717A',
     marginTop: 4,
+    textAlign: 'center',
   },
   activeTabLabel: {
     color: '#FFD165',
-    fontFamily: 'JetBrainsMono_500Medium',
+    fontFamily: 'Manrope_700Bold',
   },
 });
-
