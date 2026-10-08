@@ -15,6 +15,8 @@ import {
   Banknote,
   Landmark,
   Wallet as WalletIcon,
+  Eye,
+  EyeOff,
 } from 'lucide-react-native';
 import { useWallets } from '../hooks/useWallets';
 import { TransferModal } from '../components/TransferModal';
@@ -36,8 +38,6 @@ export function WalletsScreen({
     totalAssets,
     isLoading,
     selectedWallet,
-    selectedWalletTransactions,
-    isLoadingDetail,
     fetchWallets,
     selectWalletForDetail,
     clearSelectedWallet,
@@ -45,6 +45,7 @@ export function WalletsScreen({
 
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(initialOpenTransfer);
   const [isAddWalletModalOpen, setIsAddWalletModalOpen] = useState(false);
+  const [isBalanceHidden, setIsBalanceHidden] = useState(false);
 
   useEffect(() => {
     fetchWallets();
@@ -66,8 +67,6 @@ export function WalletsScreen({
       <>
         <WalletDetailScreen
           wallet={selectedWallet}
-          transactions={selectedWalletTransactions}
-          isLoading={isLoadingDetail}
           onBack={clearSelectedWallet}
           onTransferPress={() => setIsTransferModalOpen(true)}
         />
@@ -75,6 +74,7 @@ export function WalletsScreen({
           visible={isTransferModalOpen}
           onClose={handleCloseTransferModal}
           wallets={wallets}
+          initialFromWalletId={selectedWallet.id}
         />
       </>
     );
@@ -98,28 +98,64 @@ export function WalletsScreen({
         />
       }
     >
-      {/* Hero Total Assets Card */}
-      <View className="p-5 rounded-[22px] bg-surface border border-gold/30 mb-4 relative overflow-hidden">
-        <View className="absolute -top-12 -right-12 w-[160px] h-[160px] rounded-full bg-gold/10" />
+      {/* Hero Total Assets Card (Aligned with Dashboard TotalBalanceCard) */}
+      <View
+        className="rounded-2xl bg-surface border border-border overflow-hidden mb-4"
+        style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 10,
+          elevation: 4,
+        }}
+      >
+        <View className="px-4 py-3.5">
+          {/* Header: Indicator & Right Controls */}
+          <View className="flex-row items-center justify-between mb-1">
+            <View className="flex-row items-center gap-1.5 flex-1">
+              <View className="w-1.5 h-1.5 rounded-full bg-gold-primary" />
+              <Text className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
+                Total Saldo Terdistribusi
+              </Text>
+            </View>
 
-        <View className="flex-row items-center justify-between mb-2">
-          <Text className="font-mono text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-            Total Saldo Terdistribusi
-          </Text>
-          <View className="px-2.5 py-1 rounded-full bg-gold/10 border border-gold/25">
-            <Text className="font-mono text-[11px] text-gold-primary font-bold">
-              {wallets.length} Kantong
+            <View className="flex-row items-center gap-2">
+              <TouchableOpacity
+                onPress={() => setIsBalanceHidden(!isBalanceHidden)}
+                className="p-1"
+                activeOpacity={0.7}
+                accessibilityLabel="Sembunyikan atau tampilkan saldo"
+                accessibilityRole="button"
+              >
+                {isBalanceHidden ? (
+                  <EyeOff size={16} color="#A1A1AA" />
+                ) : (
+                  <Eye size={16} color="#A1A1AA" />
+                )}
+              </TouchableOpacity>
+
+              <View className="px-2 py-0.5 rounded-full bg-surface-highest border border-border">
+                <Text className="font-mono text-[10px] text-zinc-300 font-medium">
+                  {wallets.length} Kantong
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Amount Display */}
+          <View className="flex-row items-baseline gap-1.5 my-1">
+            <Text className="font-mono text-base text-gold-primary font-bold">Rp</Text>
+            <Text className="font-grotesk-bold text-[32px] text-zinc-100 tracking-tight">
+              {isBalanceHidden
+                ? '••••••••'
+                : formatRupiah(totalAssets).replace('Rp\u00A0', '').replace('Rp ', '')}
             </Text>
           </View>
+
+          <Text className="font-manrope text-[11px] text-zinc-400 leading-4 mt-0.5">
+            Akumulasi dana terdistribusi di seluruh kas fisik, rekening bank, & tabungan.
+          </Text>
         </View>
-
-        <Text className="font-grotesk-bold text-3xl text-zinc-100 tracking-tight mb-2.5">
-          {formatRupiah(totalAssets)}
-        </Text>
-
-        <Text className="font-manrope text-xs text-zinc-400 leading-4">
-          Semua kantong kas fisik, rekening bank, dan tabungan terakumulasi mandiri secara lokal.
-        </Text>
       </View>
 
       {/* Quick Action Buttons */}

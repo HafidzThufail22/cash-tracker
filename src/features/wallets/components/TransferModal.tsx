@@ -13,11 +13,17 @@ interface TransferModalProps {
   visible: boolean;
   onClose: () => void;
   wallets: WalletWithPercentage[];
+  initialFromWalletId?: string;
 }
 
 const QUICK_AMOUNTS = [10000, 20000, 50000, 100000, 200000, 500000];
 
-export function TransferModal({ visible, onClose, wallets }: TransferModalProps) {
+export function TransferModal({
+  visible,
+  onClose,
+  wallets,
+  initialFromWalletId,
+}: TransferModalProps) {
   const {
     fromWalletId,
     setFromWalletId,
@@ -36,14 +42,12 @@ export function TransferModal({ visible, onClose, wallets }: TransferModalProps)
 
   useEffect(() => {
     if (visible && wallets.length >= 2) {
-      if (!fromWalletId) {
-        setFromWalletId(wallets[0].id);
-      }
-      if (!toWalletId) {
-        setToWalletId(wallets[1].id);
-      }
+      const defaultFrom = initialFromWalletId || wallets[0].id;
+      setFromWalletId(defaultFrom);
+      const defaultTo = wallets.find((w) => w.id !== defaultFrom)?.id || wallets[1].id;
+      setToWalletId(defaultTo);
     }
-  }, [visible, wallets]);
+  }, [visible, wallets, initialFromWalletId]);
 
   const handleClose = () => {
     resetForm();

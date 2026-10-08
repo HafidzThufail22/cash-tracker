@@ -1,7 +1,10 @@
 import { db } from '../db';
 import { wallets, transactions, categories } from '../schema';
-import { eq, desc, sql } from 'drizzle-orm';
+import { eq, desc, sql, and } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/sqlite-core';
 import * as Crypto from 'expo-crypto';
+
+const toWallets = alias(wallets, 'to_wallets');
 
 export interface WalletWithBalance {
   id: string;
@@ -147,14 +150,30 @@ export async function createWallet(params: {
 
 /**
  * Mengambil Seluruh Transaksi yang Terkait dengan Suatu Kantong Tertentu
+ * Mendukung filter opsional berdasarkan tahun & bulan
  */
-export async function getWalletTransactions(walletId: string, limit: number = 60) {
+export async function getWalletTransactions(
+  walletId: string,
+  year?: number,
+  month?: number,
+  limit: number = 100
+) {
+  const conditions = [
+    sql`(${transactions.walletId} = ${walletId} OR ${transactions.toWalletId} = ${walletId})`,
+  ];
+
+  if (year !== undefined && month !== undefined) {
+    const monthStr = month.toString().padStart(2, '0');
+    conditions.push(sql`${transactions.date} LIKE ${`${year}-${monthStr}%`}`);
+  }
+
   const rows = await db
     .select({
       id: transactions.id,
       walletId: transactions.walletId,
       walletName: wallets.name,
       toWalletId: transactions.toWalletId,
+      toWalletName: toWallets.name,
       categoryId: transactions.categoryId,
       categoryName: categories.name,
       categoryIcon: categories.icon,
@@ -165,10 +184,9 @@ export async function getWalletTransactions(walletId: string, limit: number = 60
     })
     .from(transactions)
     .innerJoin(wallets, eq(transactions.walletId, wallets.id))
+    .leftJoin(toWallets, eq(transactions.toWalletId, toWallets.id))
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
-    .where(
-      sql`${transactions.walletId} = ${walletId} OR ${transactions.toWalletId} = ${walletId}`
-    )
+    .where(and(...conditions))
     .orderBy(desc(transactions.date))
     .limit(limit);
 
@@ -177,6 +195,7 @@ export async function getWalletTransactions(walletId: string, limit: number = 60
     walletId: r.walletId,
     walletName: r.walletName,
     toWalletId: r.toWalletId,
+    toWalletName: r.toWalletName,
     categoryId: r.categoryId,
     categoryName: r.categoryName || (r.type === 2 ? 'Pindah Saldo' : r.type === 0 ? 'Pemasukan' : 'Pengeluaran'),
     categoryIcon: r.categoryIcon || (r.type === 2 ? 'repeat' : r.type === 0 ? 'trending-up' : 'shopping-bag'),
