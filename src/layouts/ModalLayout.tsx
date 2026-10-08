@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X } from 'lucide-react-native';
 
 interface ModalLayoutProps {
@@ -28,6 +29,9 @@ export function ModalLayout({
   children,
   scrollable = true,
 }: ModalLayoutProps) {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 16) + 16;
+
   return (
     <Modal
       visible={visible}
@@ -43,9 +47,9 @@ export function ModalLayout({
           >
             <TouchableWithoutFeedback>
               <View
-                className="w-full max-h-[90%] bg-surface rounded-t-3xl border border-border pb-6"
+                className="w-full max-h-[90%] bg-surface rounded-t-3xl border border-border"
                 style={{
-                  paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+                  paddingBottom: bottomInset,
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: -4 },
                   shadowOpacity: 0.5,
@@ -88,7 +92,7 @@ export function ModalLayout({
                     {children}
                   </ScrollView>
                 ) : (
-                  <View className="max-h-[520px] p-5">{children}</View>
+                  <View className="px-5 pt-3 pb-1">{children}</View>
                 )}
               </View>
             </TouchableWithoutFeedback>

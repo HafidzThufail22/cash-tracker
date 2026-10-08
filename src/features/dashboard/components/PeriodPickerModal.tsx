@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { ModalLayout } from '../../../layouts/ModalLayout';
 import { AvailableMonth } from '../../../database/repositories/transactionRepo';
 
@@ -51,9 +51,9 @@ export function PeriodPickerModal({
       subtitle="Filter Periode Finansial"
       scrollable={false}
     >
-      <View className="py-1 gap-4">
+      <View className="gap-3 pb-3">
         {/* Year Navigator */}
-        <View className="flex-row items-center justify-between bg-[#111113] rounded-[14px] border border-border px-2 py-1.5">
+        <View className="flex-row items-center justify-between bg-[#111113] rounded-2xl border border-border px-3 py-2">
           <TouchableOpacity
             className="w-10 h-10 rounded-full bg-surface items-center justify-center border border-border"
             onPress={() => setViewingYear((prev) => prev - 1)}
@@ -87,9 +87,9 @@ export function PeriodPickerModal({
             return (
               <TouchableOpacity
                 key={item.month}
-                className={`w-[31%] rounded-[14px] py-3.5 px-2 items-center justify-center relative border ${
+                className={`w-[31%] h-[44px] rounded-xl items-center justify-center border ${
                   isSelected
-                    ? 'bg-gold-primary border-gold shadow-md shadow-gold/30'
+                    ? 'bg-gold-primary border-gold shadow-sm shadow-gold/30'
                     : 'bg-surface border-border'
                 }`}
                 onPress={() => {
@@ -99,27 +99,13 @@ export function PeriodPickerModal({
                 activeOpacity={0.7}
               >
                 <Text
-                  className={`font-grotesk-bold text-base ${
-                    isSelected ? 'text-background' : 'text-zinc-100'
+                  className={`font-manrope-semibold text-[13px] tracking-tight text-center ${
+                    isSelected ? 'text-background font-bold' : 'text-zinc-200'
                   }`}
-                >
-                  {item.short}
-                </Text>
-                <Text
-                  className={`text-[10px] mt-0.5 ${
-                    isSelected
-                      ? 'text-background/80 font-manrope-semibold'
-                      : 'font-manrope text-zinc-500'
-                  }`}
+                  numberOfLines={1}
                 >
                   {item.full}
                 </Text>
-
-                {isSelected && (
-                  <View className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-black/20 items-center justify-center">
-                    <Check size={12} color="#09090B" strokeWidth={3} />
-                  </View>
-                )}
               </TouchableOpacity>
             );
           })}

@@ -71,7 +71,7 @@ export function RecentTransactions({
 
       {/* Ledger Card Container */}
       <View
-        className="rounded-[20px] bg-surface border border-gold/30 overflow-hidden"
+        className="rounded-2xl bg-surface border border-border overflow-hidden"
         style={{
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 4 },
