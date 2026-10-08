@@ -4,11 +4,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { Upload, AlertTriangle, CheckCircle2 } from 'lucide-react-native';
+import { Upload, AlertTriangle } from 'lucide-react-native';
 import { ModalLayout } from '../../../layouts/ModalLayout';
 import { db } from '../../../database/db';
 import { wallets, categories, transactions, budgets } from '../../../database/schema';
@@ -125,19 +124,21 @@ export function RestoreDataModal({
       subtitle="Impor Cadangan JSON"
       scrollable
     >
-      <View style={styles.container}>
-        <View style={styles.infoBanner}>
+      <View className="gap-4 pb-2">
+        <View className="flex-row items-start bg-amber-500/10 border border-amber-500/25 rounded-xl p-3 gap-2.5">
           <AlertTriangle size={18} color="#F59E0B" />
-          <Text style={styles.infoText}>
+          <Text className="flex-1 font-manrope text-xs leading-[18px] text-amber-300">
             Tempel teks JSON hasil ekspor cadangan ke kolom di bawah. Data yang sudah ada tidak
             akan terduplikasi.
           </Text>
         </View>
 
-        <View style={styles.inputField}>
-          <Text style={styles.inputLabel}>TEKS JSON CADANGAN</Text>
+        <View className="gap-1.5">
+          <Text className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+            TEKS JSON CADANGAN
+          </Text>
           <TextInput
-            style={styles.textArea}
+            className="bg-[#111113] border border-border rounded-xl p-3.5 h-40 font-mono text-xs text-text-primary"
             value={jsonInput}
             onChangeText={setJsonInput}
             placeholder='Tempel data JSON di sini (misal: {"version": "1.0.0", "wallets": [...], ...})'
@@ -149,7 +150,9 @@ export function RestoreDataModal({
         </View>
 
         <TouchableOpacity
-          style={[styles.restoreBtn, isProcessing && { opacity: 0.6 }]}
+          className={`flex-row items-center justify-center bg-gold-primary h-12 rounded-xl gap-2 ${
+            isProcessing ? 'opacity-60' : ''
+          }`}
           onPress={handleRestore}
           disabled={isProcessing}
           activeOpacity={0.8}
@@ -159,7 +162,7 @@ export function RestoreDataModal({
           ) : (
             <>
               <Upload size={18} color="#09090B" strokeWidth={2.5} />
-              <Text style={styles.restoreBtnText}>Mulai Pulihkan Data</Text>
+              <Text className="font-manrope-bold text-sm text-background">Mulai Pulihkan Data</Text>
             </>
           )}
         </TouchableOpacity>
@@ -167,62 +170,3 @@ export function RestoreDataModal({
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: 16,
-    paddingBottom: 8,
-  },
-  infoBanner: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.25)',
-    borderRadius: 12,
-    padding: 12,
-    gap: 10,
-  },
-  infoText: {
-    flex: 1,
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 12,
-    lineHeight: 18,
-    color: '#FCD34D',
-  },
-  inputField: {
-    gap: 6,
-  },
-  inputLabel: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    color: '#A1A1AA',
-  },
-  textArea: {
-    backgroundColor: '#111113',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    borderRadius: 12,
-    padding: 14,
-    height: 160,
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 12,
-    color: '#F4F4F5',
-  },
-  restoreBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFD165',
-    height: 48,
-    borderRadius: 14,
-    gap: 8,
-  },
-  restoreBtnText: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 14,
-    color: '#09090B',
-  },
-});

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TextInput, TouchableOpacity } from 'react-native';
 import { Search, X } from 'lucide-react-native';
 
 interface SearchBarProps {
@@ -14,11 +14,11 @@ export function SearchBar({
   placeholder = 'Cari catatan atau kategori...',
 }: SearchBarProps) {
   return (
-    <View style={styles.container}>
-      <View style={styles.searchWrapper}>
-        <Search size={16} color="#71717A" style={styles.searchIcon} />
+    <View className="px-4 my-1">
+      <View className="flex-row items-center bg-surface rounded-[14px] border border-gold/30 px-3 h-11">
+        <Search size={16} color="#71717A" style={{ marginRight: 8 }} />
         <TextInput
-          style={styles.input}
+          className="flex-1 font-manrope-medium text-[13px] text-zinc-100 py-0"
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
@@ -29,7 +29,7 @@ export function SearchBar({
         />
         {value.length > 0 && (
           <TouchableOpacity
-            style={styles.clearButton}
+            className="w-[22px] h-[22px] rounded-full bg-border items-center justify-center ml-1.5"
             onPress={() => onChangeText('')}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
@@ -40,39 +40,3 @@ export function SearchBar({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    marginVertical: 4,
-  },
-  searchWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#18181B',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.3)',
-    paddingHorizontal: 12,
-    height: 44,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  input: {
-    flex: 1,
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 13,
-    color: '#F4F4F5',
-    paddingVertical: 0,
-  },
-  clearButton: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 6,
-  },
-});

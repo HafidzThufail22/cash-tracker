@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Platform,
   Animated,
 } from 'react-native';
@@ -74,7 +73,7 @@ function TabItem({ label, Icon, isActive, onPress }: TabItemProps) {
 
   return (
     <TouchableOpacity
-      style={styles.tabButton}
+      className="flex-1 h-full items-center justify-center relative px-0.5"
       onPress={onPress}
       activeOpacity={0.75}
       accessibilityRole="tab"
@@ -88,7 +87,11 @@ function TabItem({ label, Icon, isActive, onPress }: TabItemProps) {
         />
       </Animated.View>
       <Text
-        style={[styles.tabLabel, isActive && styles.activeTabLabel]}
+        className={`text-[9.5px] mt-1 text-center ${
+          isActive
+            ? 'text-gold-primary font-manrope-bold'
+            : 'text-zinc-500 font-manrope-semibold'
+        }`}
         numberOfLines={1}
         adjustsFontSizeToFit
         minimumFontScale={0.8}
@@ -96,13 +99,16 @@ function TabItem({ label, Icon, isActive, onPress }: TabItemProps) {
         {label}
       </Text>
       <Animated.View
-        style={[
-          styles.activeIndicator,
-          {
-            opacity: dotAnim,
-            transform: [{ scale: dotAnim }],
-          },
-        ]}
+        className="absolute bottom-1.5 w-1 h-1 rounded-full bg-gold-primary"
+        style={{
+          opacity: dotAnim,
+          transform: [{ scale: dotAnim }],
+          shadowColor: '#EAB308',
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.8,
+          shadowRadius: 3,
+          elevation: 3,
+        }}
       />
     </TouchableOpacity>
   );
@@ -138,8 +144,21 @@ export function BottomTabs({ currentTab, onTabChange }: BottomTabsProps) {
   ];
 
   return (
-    <View style={styles.floatingWrapper} pointerEvents="box-none">
-      <View style={styles.pillContainer}>
+    <View
+      className="absolute left-0 right-0 items-center px-3 z-50"
+      style={{ bottom: Platform.OS === 'ios' ? 24 : 16 }}
+      pointerEvents="box-none"
+    >
+      <View
+        className="flex-row items-center justify-around w-full max-w-[420px] h-16 rounded-full bg-[#1B1B1E]/95 border border-white/10 px-1 shadow-2xl"
+        style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: 0.5,
+          shadowRadius: 16,
+          elevation: 10,
+        }}
+      >
         {tabs.map((tab) => (
           <TabItem
             key={tab.id}
@@ -153,65 +172,3 @@ export function BottomTabs({ currentTab, onTabChange }: BottomTabsProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  floatingWrapper: {
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 24 : 16,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    zIndex: 100,
-  },
-  pillContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    width: '100%',
-    maxWidth: 420,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(27, 27, 30, 0.94)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 10,
-  },
-  tabButton: {
-    flex: 1,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    paddingHorizontal: 2,
-  },
-  activeIndicator: {
-    position: 'absolute',
-    bottom: 6,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#FFD165',
-    shadowColor: '#EAB308',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  tabLabel: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 9.5,
-    color: '#71717A',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  activeTabLabel: {
-    color: '#FFD165',
-    fontFamily: 'Manrope_700Bold',
-  },
-});

@@ -4,7 +4,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -31,44 +30,36 @@ export function ScreenWrapper({
   if (withTopInset) edges.push('top');
   if (withBottomInset) edges.push('bottom');
 
+  const defaultContentStyle: ViewStyle = {
+    flexGrow: 1,
+    paddingBottom: Platform.OS === 'ios' ? 88 : 80,
+  };
+
   return (
-    <SafeAreaView style={[styles.container, style]} edges={edges}>
+    <SafeAreaView className="flex-1 bg-background" style={style} edges={edges}>
       <StatusBar style="light" />
       <KeyboardAvoidingView
-        style={styles.keyboardContainer}
+        className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {scrollable ? (
           <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
+            className="flex-1"
+            contentContainerStyle={[defaultContentStyle, contentContainerStyle]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
             {children}
           </ScrollView>
         ) : (
-          <View style={[styles.contentContainer, contentContainerStyle]}>{children}</View>
+          <View
+            className="flex-1"
+            style={[defaultContentStyle, contentContainerStyle]}
+          >
+            {children}
+          </View>
         )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#09090B',
-  },
-  keyboardContainer: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  contentContainer: {
-    flexGrow: 1,
-    paddingBottom: Platform.OS === 'ios' ? 88 : 80,
-  },
-});
-

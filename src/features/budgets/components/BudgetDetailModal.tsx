@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  StyleSheet,
   Alert,
   ActivityIndicator,
 } from 'react-native';
@@ -44,18 +43,25 @@ export function BudgetDetailModal({
   onDelete,
 }: BudgetDetailModalProps) {
   const [transactions, setTransactions] = useState<CategoryTransactionItem[]>([]);
-  const [isLoadingTx, setIsLoadingTx] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoadingTx, setIsLoadingTx] = useState<boolean>(true);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!budget || !visible) return;
+
     async function loadTx() {
-      if (!budget || !visible) return;
       try {
         setIsLoadingTx(true);
-        const data = await getCategoryTransactionsForMonth(budget.categoryId, year, month);
-        setTransactions(data);
+        if (budget) {
+          const list = await getCategoryTransactionsForMonth(
+            budget.categoryId,
+            year,
+            month
+          );
+          setTransactions(list);
+        }
       } catch (err) {
-        console.error('Gagal memuat transaksi kategori:', err);
+        console.error('Gagal mengambil mutasi kategori anggaran:', err);
       } finally {
         setIsLoadingTx(false);
       }
@@ -100,33 +106,37 @@ export function BudgetDetailModal({
       title={budget.categoryName}
       subtitle="Evaluasi kuota & pengeluaran kategori"
     >
-      <View style={styles.container}>
+      <View className="gap-4 pb-1">
         {/* Performance Summary Card */}
-        <View style={styles.summaryCard}>
-          <View style={styles.summaryTopRow}>
+        <View className="bg-surface rounded-2xl border border-border p-4 gap-3">
+          <View className="flex-row items-center justify-between">
             <View>
-              <Text style={styles.summaryLabel}>Total Terpakai</Text>
+              <Text className="font-manrope text-[10px] text-zinc-500 uppercase tracking-wider mb-0.5">
+                Total Terpakai
+              </Text>
               <Text
-                style={[
-                  styles.summarySpent,
-                  isOverbudget && styles.summarySpentOverbudget,
-                ]}
+                className={`font-grotesk-bold text-2xl ${
+                  isOverbudget ? 'text-semantic-expense' : 'text-zinc-100'
+                }`}
               >
                 {formatRupiah(budget.spent)}
               </Text>
             </View>
 
-            <View style={styles.badgePercentage}>
+            <View
+              className={`flex-row items-center px-2 py-0.5 rounded-[10px] border ${
+                isOverbudget
+                  ? 'bg-red-500/10 border-red-500/30'
+                  : 'bg-gold/10 border-gold/25'
+              }`}
+            >
               {isOverbudget && (
-                <AlertTriangle size={12} color="#EF4444" style={styles.alertIcon} />
+                <AlertTriangle size={12} color="#EF4444" style={{ marginRight: 3 }} />
               )}
               <Text
-                style={[
-                  styles.badgePercentageText,
-                  isOverbudget
-                    ? styles.badgeOverbudgetText
-                    : styles.badgeSafeText,
-                ]}
+                className={`font-mono text-[11px] font-bold ${
+                  isOverbudget ? 'text-semantic-expense' : 'text-gold-primary'
+                }`}
               >
                 {budget.percentage}%
               </Text>
@@ -139,15 +149,14 @@ export function BudgetDetailModal({
             height={8}
           />
 
-          <View style={styles.summaryBottomRow}>
-            <Text style={styles.plafonLabel}>
+          <View className="flex-row items-center justify-between pt-0.5">
+            <Text className="font-mono text-xs text-zinc-400">
               Plafon: {formatRupiah(budget.amountLimit)}
             </Text>
             <Text
-              style={[
-                styles.remainingStatus,
-                isOverbudget ? styles.overbudgetStatus : styles.remainingSafeStatus,
-              ]}
+              className={`font-manrope-semibold text-xs ${
+                isOverbudget ? 'text-semantic-expense' : 'text-semantic-income'
+              }`}
             >
               {isOverbudget
                 ? `Melebihi ${formatRupiah(Math.abs(budget.remaining))}`
@@ -157,23 +166,23 @@ export function BudgetDetailModal({
         </View>
 
         {/* Transactions Section */}
-        <View style={styles.txSection}>
-          <View style={styles.txSectionHeader}>
-            <View style={styles.txTitleRow}>
+        <View className="gap-2">
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center gap-1.5">
               <Receipt size={15} color="#FFD165" />
-              <Text style={styles.txSectionTitle}>Pengeluaran Bulan Ini</Text>
+              <Text className="font-manrope-bold text-sm text-zinc-100">Pengeluaran Bulan Ini</Text>
             </View>
-            <Text style={styles.txCountBadge}>{transactions.length} catatan</Text>
+            <Text className="font-mono text-[11px] text-zinc-500">{transactions.length} catatan</Text>
           </View>
 
-          <ScrollView style={styles.txListScroll} showsVerticalScrollIndicator={false}>
+          <ScrollView style={{ maxHeight: 240 }} showsVerticalScrollIndicator={false}>
             {isLoadingTx ? (
-              <View style={styles.loadingBox}>
+              <View className="p-8 items-center justify-center">
                 <ActivityIndicator size="small" color="#FFD165" />
               </View>
             ) : transactions.length === 0 ? (
-              <View style={styles.emptyTxBox}>
-                <Text style={styles.emptyTxText}>
+              <View className="p-6 items-center justify-center bg-surface-lowest rounded-xl border border-border/40">
+                <Text className="font-manrope text-xs text-zinc-500 text-center">
                   Belum ada transaksi pengeluaran di kategori ini pada bulan yang dipilih.
                 </Text>
               </View>
@@ -181,25 +190,24 @@ export function BudgetDetailModal({
               transactions.map((tx, idx) => (
                 <View
                   key={tx.id}
-                  style={[
-                    styles.txRow,
-                    idx !== transactions.length - 1 && styles.txBorderBottom,
-                  ]}
+                  className={`flex-row items-center justify-between py-2.5 ${
+                    idx !== transactions.length - 1 ? 'border-b border-border/40' : ''
+                  }`}
                 >
-                  <View style={styles.txLeft}>
-                    <Text style={styles.txNotes} numberOfLines={1}>
+                  <View className="flex-1 mr-3">
+                    <Text className="font-manrope-semibold text-sm text-zinc-100 mb-0.5" numberOfLines={1}>
                       {tx.notes || budget.categoryName}
                     </Text>
-                    <View style={styles.txMeta}>
-                      <Text style={styles.txWallet}>{tx.walletName}</Text>
-                      <Text style={styles.txDot}>•</Text>
-                      <Text style={styles.txDate}>
+                    <View className="flex-row items-center gap-1.5">
+                      <Text className="font-mono text-[10px] text-zinc-500">{tx.walletName}</Text>
+                      <Text className="text-zinc-600 text-[10px]">•</Text>
+                      <Text className="font-mono text-[10px] text-zinc-500">
                         {formatTransactionDate(tx.date)}
                       </Text>
                     </View>
                   </View>
 
-                  <Text style={styles.txAmount}>
+                  <Text className="font-mono text-xs font-semibold text-semantic-expense">
                     -{formatRupiah(tx.amount)}
                   </Text>
                 </View>
@@ -209,9 +217,9 @@ export function BudgetDetailModal({
         </View>
 
         {/* Action Buttons Row */}
-        <View style={styles.actionButtonsRow}>
+        <View className="flex-row gap-2.5 pt-1">
           <TouchableOpacity
-            style={styles.editButton}
+            className="flex-1 flex-row items-center justify-center gap-1.5 py-3 rounded-xl bg-gold/10 border border-gold/30"
             onPress={() => {
               onClose();
               onEditLimit(budget);
@@ -219,11 +227,11 @@ export function BudgetDetailModal({
             activeOpacity={0.75}
           >
             <Edit3 size={15} color="#FFD165" strokeWidth={2} />
-            <Text style={styles.editButtonText}>Ubah Plafon</Text>
+            <Text className="font-manrope-semibold text-xs text-gold-primary">Ubah Plafon</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.deleteButton}
+            className="flex-1 flex-row items-center justify-center gap-1.5 py-3 rounded-xl bg-red-500/10 border border-red-500/25"
             onPress={handleDelete}
             disabled={isDeleting}
             activeOpacity={0.75}
@@ -233,7 +241,7 @@ export function BudgetDetailModal({
             ) : (
               <>
                 <Trash2 size={15} color="#EF4444" strokeWidth={2} />
-                <Text style={styles.deleteButtonText}>Hapus Anggaran</Text>
+                <Text className="font-manrope-semibold text-xs text-semantic-expense">Hapus Anggaran</Text>
               </>
             )}
           </TouchableOpacity>
@@ -242,218 +250,3 @@ export function BudgetDetailModal({
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: 16,
-    paddingBottom: 4,
-  },
-  summaryCard: {
-    backgroundColor: '#1C1C20',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.3)',
-    padding: 16,
-    gap: 12,
-  },
-  summaryTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  summaryLabel: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 11,
-    color: '#71717A',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  summarySpent: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 24,
-    color: '#F4F4F5',
-  },
-  summarySpentOverbudget: {
-    color: '#EF4444',
-  },
-  badgePercentage: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-    backgroundColor: '#131316',
-    borderWidth: 1,
-    borderColor: '#27272A',
-  },
-  alertIcon: {
-    marginRight: 4,
-  },
-  badgePercentageText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  badgeSafeText: {
-    color: '#FFD165',
-  },
-  badgeOverbudgetText: {
-    color: '#EF4444',
-  },
-  summaryBottomRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 2,
-  },
-  plafonLabel: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 11,
-    color: '#A1A1AA',
-  },
-  remainingStatus: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 11,
-  },
-  remainingSafeStatus: {
-    color: '#10B981',
-  },
-  overbudgetStatus: {
-    color: '#EF4444',
-  },
-  txSection: {
-    gap: 8,
-  },
-  txSectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 2,
-  },
-  txTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  txSectionTitle: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 13,
-    color: '#F4F4F5',
-  },
-  txCountBadge: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    color: '#71717A',
-  },
-  txListScroll: {
-    maxHeight: 180,
-    backgroundColor: '#18181B',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.25)',
-  },
-  loadingBox: {
-    padding: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyTxBox: {
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyTxText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 12,
-    color: '#71717A',
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-  txRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  txBorderBottom: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(39, 39, 42, 0.6)',
-  },
-  txLeft: {
-    flex: 1,
-    marginRight: 12,
-  },
-  txNotes: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 12,
-    color: '#F4F4F5',
-    marginBottom: 2,
-  },
-  txMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  txWallet: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 9,
-    color: '#9B8F79',
-    textTransform: 'uppercase',
-  },
-  txDot: {
-    fontSize: 9,
-    color: '#3F3F46',
-  },
-  txDate: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 9,
-    color: '#71717A',
-  },
-  txAmount: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 12,
-    color: '#EF4444',
-    fontWeight: '600',
-  },
-  actionButtonsRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 4,
-  },
-  editButton: {
-    flex: 1,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#1C1C20',
-    borderWidth: 1,
-    borderColor: 'rgba(234, 179, 8, 0.4)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  editButtonText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 13,
-    color: '#FFD165',
-  },
-  deleteButton: {
-    flex: 1,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  deleteButtonText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 13,
-    color: '#EF4444',
-  },
-});

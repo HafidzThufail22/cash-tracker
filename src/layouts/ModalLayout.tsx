@@ -7,7 +7,6 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   ScrollView,
 } from 'react-native';
 import { X } from 'lucide-react-native';
@@ -37,24 +36,40 @@ export function ModalLayout({
       onRequestClose={onClose}
     >
       <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.backdrop}>
+        <View className="flex-1 bg-black/75 justify-end">
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={styles.keyboardContainer}
+            className="w-full justify-end"
           >
             <TouchableWithoutFeedback>
-              <View style={styles.sheetContainer}>
+              <View
+                className="w-full max-h-[90%] bg-surface rounded-t-3xl border border-border pb-6"
+                style={{
+                  paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: -4 },
+                  shadowOpacity: 0.5,
+                  shadowRadius: 16,
+                  elevation: 16,
+                }}
+              >
                 {/* Drag Handle Bar */}
-                <View style={styles.handleBar} />
+                <View className="w-10 h-1 rounded-full bg-zinc-700 self-center mt-2.5 mb-2" />
 
                 {/* Modal Header */}
-                <View style={styles.header}>
-                  <View style={styles.titleContainer}>
-                    {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-                    <Text style={styles.title}>{title}</Text>
+                <View className="flex-row items-center justify-between px-5 py-3 border-b border-border/60">
+                  <View className="flex-1">
+                    {subtitle && (
+                      <Text className="font-mono text-[10px] uppercase tracking-wider text-gold-primary mb-0.5">
+                        {subtitle}
+                      </Text>
+                    )}
+                    <Text className="font-manrope-bold text-lg text-zinc-100 tracking-tight">
+                      {title}
+                    </Text>
                   </View>
                   <TouchableOpacity
-                    style={styles.closeButton}
+                    className="w-[34px] h-[34px] rounded-full bg-border items-center justify-center ml-3"
                     onPress={onClose}
                     activeOpacity={0.7}
                   >
@@ -65,15 +80,15 @@ export function ModalLayout({
                 {/* Content Container */}
                 {scrollable ? (
                   <ScrollView
-                    style={styles.body}
-                    contentContainerStyle={styles.bodyContent}
+                    className="max-h-[520px]"
+                    contentContainerStyle={{ padding: 20 }}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                   >
                     {children}
                   </ScrollView>
                 ) : (
-                  <View style={[styles.body, styles.bodyContent]}>{children}</View>
+                  <View className="max-h-[520px] p-5">{children}</View>
                 )}
               </View>
             </TouchableWithoutFeedback>
@@ -83,81 +98,3 @@ export function ModalLayout({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    justifyContent: 'flex-end',
-  },
-  keyboardContainer: {
-    width: '100%',
-    justifyContent: 'flex-end',
-  },
-  sheetContainer: {
-    width: '100%',
-    maxHeight: '90%',
-    backgroundColor: '#18181B',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    borderWidth: 1,
-    borderColor: '#27272A',
-    paddingBottom: Platform.OS === 'ios' ? 36 : 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 16,
-  },
-  handleBar: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#3F3F46',
-    alignSelf: 'center',
-    marginTop: 10,
-    marginBottom: 8,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(39, 39, 42, 0.6)',
-  },
-  titleContainer: {
-    flex: 1,
-  },
-  subtitle: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    color: '#FFD165',
-    marginBottom: 2,
-  },
-  title: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 18,
-    color: '#F4F4F5',
-    letterSpacing: -0.2,
-  },
-  closeButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 12,
-  },
-  body: {
-    maxHeight: 520,
-  },
-  bodyContent: {
-    padding: 20,
-  },
-});
-

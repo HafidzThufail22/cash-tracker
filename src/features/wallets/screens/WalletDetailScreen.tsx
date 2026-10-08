@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  StyleSheet,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -19,7 +18,7 @@ import {
 } from 'lucide-react-native';
 import { WalletWithBalance } from '../../../database/repositories/walletRepo';
 import { RecentTransactionItem } from '../../../database/repositories/transactionRepo';
-import { formatRupiah, formatSignedRupiah } from '../../../utils/currency';
+import { formatRupiah } from '../../../utils/currency';
 import { formatTransactionDate } from '../../../utils/date';
 import { Button } from '../../../components/common/Button';
 
@@ -41,7 +40,6 @@ export function WalletDetailScreen({
   const isSavings = wallet.name.toLowerCase().includes('tabungan');
   const isBank = wallet.type === 'bank';
 
-  // Hitung total masuk dan keluar khusus kantong ini dari riwayat
   const { totalIn, totalOut } = useMemo(() => {
     let inSum = 0;
     let outSum = 0;
@@ -50,11 +48,11 @@ export function WalletDetailScreen({
       if (t.type === 0 && t.walletId === wallet.id) {
         inSum += t.amount;
       } else if (t.type === 2 && t.toWalletId === wallet.id) {
-        inSum += t.amount; // Transfer masuk
+        inSum += t.amount;
       } else if (t.type === 1 && t.walletId === wallet.id) {
-        outSum += t.amount; // Pengeluaran
+        outSum += t.amount;
       } else if (t.type === 2 && t.walletId === wallet.id) {
-        outSum += t.amount; // Transfer keluar
+        outSum += t.amount;
       }
     }
 
@@ -63,31 +61,64 @@ export function WalletDetailScreen({
 
   return (
     <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+      className="flex-1 bg-background"
+      contentContainerStyle={{
+        paddingHorizontal: 16,
+        paddingTop: 12,
+        paddingBottom: Platform.OS === 'ios' ? 88 : 80,
+        gap: 16,
+      }}
       showsVerticalScrollIndicator={false}
     >
       {/* Top Navigation Bar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.7}>
+      <View className="flex-row items-center justify-between py-1">
+        <TouchableOpacity
+          className="w-[38px] h-[38px] rounded-full bg-surface border border-border items-center justify-center"
+          onPress={onBack}
+          activeOpacity={0.7}
+        >
           <ArrowLeft size={20} color="#F4F4F5" />
         </TouchableOpacity>
-        <Text style={styles.navTitle} numberOfLines={1}>
+        <Text className="font-manrope-bold text-base text-zinc-100 flex-1 text-center" numberOfLines={1}>
           Detail Kantong
         </Text>
-        <View style={styles.typeBadge}>
-          <Text style={styles.typeBadgeText}>
+        <View
+          className={`px-2.5 py-1 rounded-full border ${
+            isSavings
+              ? 'bg-gold/10 border-gold/25'
+              : isBank
+              ? 'bg-blue-500/10 border-blue-500/25'
+              : 'bg-emerald-500/10 border-emerald-500/25'
+          }`}
+        >
+          <Text
+            className={`font-mono text-[11px] font-bold uppercase ${
+              isSavings
+                ? 'text-gold-primary'
+                : isBank
+                ? 'text-blue-400'
+                : 'text-emerald-400'
+            }`}
+          >
             {isSavings ? 'Tabungan' : isBank ? 'Bank' : 'Cash'}
           </Text>
         </View>
       </View>
 
       {/* Hero Wallet Balance Card */}
-      <View style={styles.heroCard}>
-        <View style={styles.heroGlow} />
+      <View className="p-5 rounded-[22px] bg-surface border border-gold/30 relative overflow-hidden">
+        <View className="absolute -top-10 -right-10 w-[140px] h-[140px] rounded-full bg-gold/10" />
 
-        <View style={styles.heroTop}>
-          <View style={styles.iconCircle}>
+        <View className="flex-row items-center gap-3.5">
+          <View
+            className={`w-12 h-12 rounded-xl items-center justify-center border bg-surface-lowest ${
+              isSavings
+                ? 'border-gold/30'
+                : isBank
+                ? 'border-blue-500/30'
+                : 'border-emerald-500/30'
+            }`}
+          >
             {isSavings ? (
               <PiggyBank size={24} color="#FFD165" strokeWidth={2.2} />
             ) : isBank ? (
@@ -96,32 +127,32 @@ export function WalletDetailScreen({
               <Banknote size={24} color="#10B981" strokeWidth={2.2} />
             )}
           </View>
-          <View style={styles.heroHeaderInfo}>
-            <Text style={styles.walletNameLabel}>{wallet.name}</Text>
-            <Text style={styles.balanceNominal}>{formatRupiah(wallet.balance)}</Text>
+          <View className="flex-1">
+            <Text className="font-mono text-xs uppercase tracking-wider text-zinc-400 mb-1">{wallet.name}</Text>
+            <Text className="font-grotesk-bold text-2xl text-zinc-100 tracking-tight">{formatRupiah(wallet.balance)}</Text>
           </View>
         </View>
 
         {/* Micro-stats In & Out */}
-        <View style={styles.divider} />
-        <View style={styles.statsRow}>
-          <View style={styles.statCol}>
-            <View style={styles.inIconWrapper}>
+        <View className="h-[1px] bg-border my-3.5" />
+        <View className="flex-row gap-3">
+          <View className="flex-1 flex-row items-center gap-2.5 p-2.5 rounded-xl bg-[#111113] border border-border">
+            <View className="w-6 h-6 rounded-full bg-emerald-500/15 items-center justify-center">
               <ArrowUpRight size={14} color="#10B981" />
             </View>
             <View>
-              <Text style={styles.statLabel}>Akumulasi Masuk</Text>
-              <Text style={styles.inValue}>+{formatRupiah(totalIn)}</Text>
+              <Text className="font-manrope-medium text-[10px] text-zinc-500 mb-0.5">Akumulasi Masuk</Text>
+              <Text className="font-grotesk text-xs text-semantic-income">+{formatRupiah(totalIn)}</Text>
             </View>
           </View>
 
-          <View style={styles.statCol}>
-            <View style={styles.outIconWrapper}>
+          <View className="flex-1 flex-row items-center gap-2.5 p-2.5 rounded-xl bg-[#111113] border border-border">
+            <View className="w-6 h-6 rounded-full bg-red-500/15 items-center justify-center">
               <ArrowDownLeft size={14} color="#EF4444" />
             </View>
             <View>
-              <Text style={styles.statLabel}>Akumulasi Keluar</Text>
-              <Text style={styles.outValue}>-{formatRupiah(totalOut)}</Text>
+              <Text className="font-manrope-medium text-[10px] text-zinc-500 mb-0.5">Akumulasi Keluar</Text>
+              <Text className="font-grotesk text-xs text-semantic-expense">-{formatRupiah(totalOut)}</Text>
             </View>
           </View>
         </View>
@@ -136,17 +167,21 @@ export function WalletDetailScreen({
       />
 
       {/* Transaction History Section */}
-      <View style={styles.historySection}>
-        <Text style={styles.historySectionTitle}>Riwayat Mutasi Kantong</Text>
+      <View className="mt-1">
+        <Text className="font-manrope-bold text-base text-zinc-100 tracking-tight mb-2.5">
+          Riwayat Mutasi Kantong
+        </Text>
 
-        <View style={styles.ledgerCard}>
+        <View className="rounded-2xl bg-surface border border-border overflow-hidden">
           {isLoading ? (
-            <View style={styles.centerLoading}>
+            <View className="p-8 items-center justify-center">
               <ActivityIndicator size="small" color="#FFD165" />
             </View>
           ) : transactions.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Belum ada riwayat transaksi pada kantong ini.</Text>
+            <View className="p-8 items-center justify-center">
+              <Text className="font-manrope text-sm text-zinc-500 text-center">
+                Belum ada riwayat transaksi pada kantong ini.
+              </Text>
             </View>
           ) : (
             transactions.map((tx, idx) => {
@@ -164,17 +199,16 @@ export function WalletDetailScreen({
               return (
                 <View
                   key={tx.id}
-                  style={[styles.txRow, !isLast && styles.txBorderBottom]}
+                  className={`flex-row items-center p-3.5 ${!isLast ? 'border-b border-border/50' : ''}`}
                 >
                   <View
-                    style={[
-                      styles.txIconBox,
+                    className={`w-9 h-9 rounded-xl items-center justify-center bg-surface-lowest border mr-3 ${
                       isPositive
-                        ? styles.incomeIconBox
+                        ? 'border-emerald-500/25'
                         : isNegative
-                        ? styles.expenseIconBox
-                        : styles.transferIconBox,
-                    ]}
+                        ? 'border-red-500/25'
+                        : 'border-yellow-500/25'
+                    }`}
                   >
                     {isPositive ? (
                       <ArrowUpRight size={16} color="#10B981" strokeWidth={2.5} />
@@ -183,35 +217,34 @@ export function WalletDetailScreen({
                     )}
                   </View>
 
-                  <View style={styles.txCenter}>
-                    <Text style={styles.txTitle} numberOfLines={1}>
+                  <View className="flex-1 justify-center">
+                    <Text className="font-manrope-semibold text-sm text-zinc-100 mb-0.5" numberOfLines={1}>
                       {tx.notes || tx.categoryName}
                     </Text>
-                    <View style={styles.txMeta}>
-                      <Text style={styles.txCategory}>
+                    <View className="flex-row items-center gap-1.5">
+                      <Text className="font-mono text-[10px] uppercase text-[#9B8F79]">
                         {isTransfer
                           ? isTransferIn
                             ? `Transfer Masuk dari ${tx.walletName}`
                             : 'Transfer Keluar'
                           : tx.categoryName}
                       </Text>
-                      <View style={styles.dot} />
-                      <Text style={styles.txDate}>
+                      <View className="w-[3px] h-[3px] rounded-full bg-zinc-700" />
+                      <Text className="font-mono text-[10px] text-zinc-500">
                         {formatTransactionDate(tx.date)}
                       </Text>
                     </View>
                   </View>
 
-                  <View style={styles.txRight}>
+                  <View className="items-end ml-2">
                     <Text
-                      style={[
-                        styles.txAmount,
+                      className={`font-mono text-xs font-semibold ${
                         isPositive
-                          ? styles.positiveText
+                          ? 'text-semantic-income'
                           : isNegative
-                          ? styles.negativeText
-                          : styles.neutralText,
-                      ]}
+                          ? 'text-semantic-expense'
+                          : 'text-gold-primary'
+                      }`}
                     >
                       {isPositive ? '+' : '-'}
                       {formatRupiah(tx.amount)}
@@ -226,261 +259,3 @@ export function WalletDetailScreen({
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#09090B',
-  },
-  contentContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: Platform.OS === 'ios' ? 88 : 80,
-    gap: 16,
-  },
-  navBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  backButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navTitle: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 18,
-    color: '#F4F4F5',
-  },
-  typeBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    backgroundColor: 'rgba(234, 179, 8, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(234, 179, 8, 0.3)',
-  },
-  typeBadgeText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    color: '#FFD165',
-    fontWeight: '600',
-  },
-  heroCard: {
-    borderRadius: 20,
-    backgroundColor: '#1C1C20',
-    borderWidth: 1,
-    borderColor: 'rgba(234, 179, 8, 0.3)',
-    padding: 20,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  heroGlow: {
-    position: 'absolute',
-    top: -40,
-    right: -40,
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(234, 179, 8, 0.08)',
-  },
-  heroTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: '#0E0E11',
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.4)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heroHeaderInfo: {
-    flex: 1,
-  },
-  walletNameLabel: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    color: '#D3C5AC',
-    marginBottom: 4,
-  },
-  balanceNominal: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 26,
-    color: '#F4F4F5',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: 'rgba(79, 70, 51, 0.3)',
-    marginVertical: 16,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  statCol: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  inIconWrapper: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  outIconWrapper: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statLabel: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 9,
-    textTransform: 'uppercase',
-    color: '#71717A',
-    marginBottom: 2,
-  },
-  inValue: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    color: '#10B981',
-    fontWeight: '600',
-  },
-  outValue: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    color: '#EF4444',
-    fontWeight: '600',
-  },
-  historySection: {
-    marginTop: 6,
-  },
-  historySectionTitle: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 16,
-    color: '#F4F4F5',
-    marginBottom: 10,
-  },
-  ledgerCard: {
-    borderRadius: 18,
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.3)',
-    overflow: 'hidden',
-  },
-  centerLoading: {
-    padding: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyContainer: {
-    padding: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 13,
-    color: '#71717A',
-    textAlign: 'center',
-  },
-  txRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-  },
-  txBorderBottom: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(39, 39, 42, 0.6)',
-  },
-  txIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0E0E11',
-    borderWidth: 1,
-    marginRight: 12,
-  },
-  incomeIconBox: {
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-  },
-  expenseIconBox: {
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-  },
-  transferIconBox: {
-    borderColor: 'rgba(234, 179, 8, 0.3)',
-  },
-  txCenter: {
-    flex: 1,
-  },
-  txTitle: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 13,
-    color: '#F4F4F5',
-    marginBottom: 3,
-  },
-  txMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  txCategory: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    color: '#9B8F79',
-  },
-  dot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: '#3F3F46',
-  },
-  txDate: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 10,
-    color: '#71717A',
-  },
-  txRight: {
-    marginLeft: 8,
-    alignItems: 'flex-end',
-  },
-  txAmount: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  positiveText: {
-    color: '#10B981',
-  },
-  negativeText: {
-    color: '#EF4444',
-  },
-  neutralText: {
-    color: '#FFD165',
-  },
-});
-

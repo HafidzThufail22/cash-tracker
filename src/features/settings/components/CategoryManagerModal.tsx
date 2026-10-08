@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   ActivityIndicator,
   FlatList,
   Alert,
@@ -136,36 +135,38 @@ export function CategoryManagerModal({
       subtitle={mode === 'create' ? 'Kustomisasi Kategori' : 'Klasifikasi Dinamis'}
       scrollable={false}
     >
-      <View style={styles.container}>
+      <View className="h-[480px]">
         {mode === 'list' ? (
           <>
             {/* Segmented Tab */}
-            <View style={styles.segmentedControl}>
+            <View className="flex-row bg-[#111113] rounded-xl p-1 border border-border mb-3">
               <TouchableOpacity
-                style={[styles.segmentBtn, activeTab === 'expense' && styles.segmentBtnActive]}
+                className={`flex-1 h-9 items-center justify-center rounded-lg ${
+                  activeTab === 'expense' ? 'bg-[#27272A]' : ''
+                }`}
                 onPress={() => setActiveTab('expense')}
                 activeOpacity={0.7}
               >
                 <Text
-                  style={[
-                    styles.segmentText,
-                    activeTab === 'expense' && styles.segmentTextActive,
-                  ]}
+                  className={`font-manrope-semibold text-xs ${
+                    activeTab === 'expense' ? 'text-gold-primary' : 'text-text-muted'
+                  }`}
                 >
                   Pengeluaran
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.segmentBtn, activeTab === 'income' && styles.segmentBtnActive]}
+                className={`flex-1 h-9 items-center justify-center rounded-lg ${
+                  activeTab === 'income' ? 'bg-[#27272A]' : ''
+                }`}
                 onPress={() => setActiveTab('income')}
                 activeOpacity={0.7}
               >
                 <Text
-                  style={[
-                    styles.segmentText,
-                    activeTab === 'income' && styles.segmentTextActive,
-                  ]}
+                  className={`font-manrope-semibold text-xs ${
+                    activeTab === 'income' ? 'text-gold-primary' : 'text-text-muted'
+                  }`}
                 >
                   Pemasukan
                 </Text>
@@ -174,34 +175,37 @@ export function CategoryManagerModal({
 
             {/* List */}
             {loading ? (
-              <View style={styles.centerContainer}>
+              <View className="flex-1 items-center justify-center gap-2">
                 <ActivityIndicator size="small" color="#FFD165" />
-                <Text style={styles.loadingText}>Memuat daftar kategori...</Text>
+                <Text className="font-manrope text-xs text-text-secondary">Memuat daftar kategori...</Text>
               </View>
             ) : (
               <FlatList
                 data={filteredCategories}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={{ gap: 8, paddingBottom: 14 }}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => {
                   const IconComp = getCategoryIconComponent(item.icon);
                   const color = item.color || '#A1A1AA';
 
                   return (
-                    <View style={styles.categoryItemCard}>
-                      <View style={[styles.iconWrap, { backgroundColor: `${color}18` }]}>
+                    <View className="flex-row items-center bg-surface border border-border rounded-xl p-3 gap-3">
+                      <View
+                        className="w-[38px] h-[38px] rounded-full items-center justify-center"
+                        style={{ backgroundColor: `${color}18` }}
+                      >
                         <IconComp size={18} color={color} strokeWidth={2.2} />
                       </View>
-                      <View style={styles.categoryInfo}>
-                        <Text style={styles.categoryName}>{item.name}</Text>
-                        <Text style={styles.categoryMeta}>
+                      <View className="flex-1">
+                        <Text className="font-manrope-semibold text-sm text-text-primary">{item.name}</Text>
+                        <Text className="font-mono text-[11px] text-text-muted mt-0.5">
                           {item.type === 1 ? 'Pos Belanja' : 'Pos Pemasukan'}
                         </Text>
                       </View>
 
                       <TouchableOpacity
-                        style={styles.deleteBtn}
+                        className="w-9 h-9 rounded-full items-center justify-center bg-[#1F1F23]"
                         onPress={() => handleDeleteCategory(item)}
                         activeOpacity={0.7}
                         accessibilityLabel={`Hapus ${item.name}`}
@@ -212,8 +216,8 @@ export function CategoryManagerModal({
                   );
                 }}
                 ListEmptyComponent={
-                  <View style={styles.centerContainer}>
-                    <Text style={styles.emptyText}>Belum ada kategori pada tab ini.</Text>
+                  <View className="flex-1 items-center justify-center gap-2">
+                    <Text className="font-manrope text-xs text-text-muted">Belum ada kategori pada tab ini.</Text>
                   </View>
                 }
               />
@@ -221,12 +225,12 @@ export function CategoryManagerModal({
 
             {/* Add Button */}
             <TouchableOpacity
-              style={styles.addCategoryBtn}
+              className="flex-row items-center justify-center bg-gold-primary h-12 rounded-xl gap-2 mt-2"
               onPress={handleOpenCreate}
               activeOpacity={0.8}
             >
               <Plus size={18} color="#09090B" strokeWidth={2.5} />
-              <Text style={styles.addCategoryBtnText}>
+              <Text className="font-manrope-bold text-sm text-background">
                 Tambah Kategori {activeTab === 'expense' ? 'Pengeluaran' : 'Pemasukan'}
               </Text>
             </TouchableOpacity>
@@ -234,15 +238,15 @@ export function CategoryManagerModal({
         ) : (
           /* Form Tambah Kategori Dinamis */
           <ScrollView
-            style={styles.formContainer}
-            contentContainerStyle={styles.formContent}
+            className="flex-1"
+            contentContainerStyle={{ gap: 14, paddingBottom: 16 }}
             showsVerticalScrollIndicator={false}
           >
             {/* Input Nama */}
-            <View style={styles.formField}>
-              <Text style={styles.fieldLabel}>NAMA KATEGORI</Text>
+            <View className="gap-1.5">
+              <Text className="font-mono text-[10px] uppercase tracking-wider text-text-muted">NAMA KATEGORI</Text>
               <TextInput
-                style={styles.textInput}
+                className="bg-[#111113] border border-border rounded-xl px-3.5 h-[46px] font-manrope-medium text-sm text-text-primary"
                 value={newCatName}
                 onChangeText={setNewCatName}
                 placeholder="Misal: Tagihan Listrik, Hiburan, Hadiah"
@@ -252,19 +256,19 @@ export function CategoryManagerModal({
             </View>
 
             {/* Icon Picker */}
-            <View style={styles.formField}>
-              <Text style={styles.fieldLabel}>PILIH IKON</Text>
-              <View style={styles.iconGrid}>
+            <View className="gap-1.5">
+              <Text className="font-mono text-[10px] uppercase tracking-wider text-text-muted">PILIH IKON</Text>
+              <View className="flex-row flex-wrap gap-2">
                 {AVAILABLE_CATEGORY_ICONS.map((opt) => {
                   const isSelected = newCatIcon === opt.id;
                   const IconComp = opt.Icon;
                   return (
                     <TouchableOpacity
                       key={opt.id}
-                      style={[
-                        styles.iconPickerItem,
-                        isSelected && { borderColor: newCatColor, backgroundColor: `${newCatColor}20` },
-                      ]}
+                      className={`w-11 h-11 rounded-xl bg-surface border-[1.5px] items-center justify-center ${
+                        isSelected ? '' : 'border-border'
+                      }`}
+                      style={isSelected ? { borderColor: newCatColor, backgroundColor: `${newCatColor}20` } : undefined}
                       onPress={() => setNewCatIcon(opt.id)}
                       activeOpacity={0.7}
                     >
@@ -280,19 +284,18 @@ export function CategoryManagerModal({
             </View>
 
             {/* Color Picker */}
-            <View style={styles.formField}>
-              <Text style={styles.fieldLabel}>PILIH WARNA AKSEN</Text>
-              <View style={styles.colorRow}>
+            <View className="gap-1.5">
+              <Text className="font-mono text-[10px] uppercase tracking-wider text-text-muted">PILIH WARNA AKSEN</Text>
+              <View className="flex-row flex-wrap gap-2.5">
                 {AVAILABLE_CATEGORY_COLORS.map((col) => {
                   const isSelected = newCatColor === col;
                   return (
                     <TouchableOpacity
                       key={col}
-                      style={[
-                        styles.colorCircle,
-                        { backgroundColor: col },
-                        isSelected && styles.colorCircleSelected,
-                      ]}
+                      className={`w-8 h-8 rounded-full items-center justify-center ${
+                        isSelected ? 'border-2 border-white' : ''
+                      }`}
+                      style={{ backgroundColor: col }}
                       onPress={() => setNewCatColor(col)}
                       activeOpacity={0.8}
                     >
@@ -304,18 +307,20 @@ export function CategoryManagerModal({
             </View>
 
             {/* Action Buttons */}
-            <View style={styles.formActionRow}>
+            <View className="flex-row gap-2.5 mt-2">
               <TouchableOpacity
-                style={styles.cancelBtn}
+                className="flex-1 h-[46px] rounded-xl border border-border bg-surface flex-row items-center justify-center gap-1.5"
                 onPress={() => setMode('list')}
                 activeOpacity={0.7}
               >
                 <ArrowLeft size={16} color="#A1A1AA" />
-                <Text style={styles.cancelBtnText}>Batal</Text>
+                <Text className="font-manrope-semibold text-xs text-text-secondary">Batal</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.saveBtn, isSaving && { opacity: 0.6 }]}
+                className={`flex-[2] h-[46px] rounded-xl bg-gold-primary items-center justify-center ${
+                  isSaving ? 'opacity-60' : ''
+                }`}
                 onPress={handleSaveCategory}
                 disabled={isSaving}
                 activeOpacity={0.8}
@@ -323,7 +328,7 @@ export function CategoryManagerModal({
                 {isSaving ? (
                   <ActivityIndicator size="small" color="#09090B" />
                 ) : (
-                  <Text style={styles.saveBtnText}>Simpan Kategori</Text>
+                  <Text className="font-manrope-bold text-sm text-background">Simpan Kategori</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -333,204 +338,3 @@ export function CategoryManagerModal({
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: 480,
-  },
-  segmentedControl: {
-    flexDirection: 'row',
-    backgroundColor: '#111113',
-    borderRadius: 12,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: '#27272A',
-    marginBottom: 12,
-  },
-  segmentBtn: {
-    flex: 1,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-  },
-  segmentBtnActive: {
-    backgroundColor: '#27272A',
-  },
-  segmentText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 12,
-    color: '#71717A',
-  },
-  segmentTextActive: {
-    color: '#FFD165',
-  },
-  centerContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  loadingText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 13,
-    color: '#A1A1AA',
-  },
-  emptyText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 13,
-    color: '#71717A',
-  },
-  listContent: {
-    gap: 8,
-    paddingBottom: 14,
-  },
-  categoryItemCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    borderRadius: 12,
-    padding: 12,
-    gap: 12,
-  },
-  iconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  categoryInfo: {
-    flex: 1,
-  },
-  categoryName: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 14,
-    color: '#F4F4F5',
-  },
-  categoryMeta: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 11,
-    color: '#71717A',
-    marginTop: 2,
-  },
-  deleteBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#1F1F23',
-  },
-  addCategoryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFD165',
-    height: 48,
-    borderRadius: 14,
-    gap: 8,
-    marginTop: 8,
-  },
-  addCategoryBtnText: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 14,
-    color: '#09090B',
-  },
-  formContainer: {
-    flex: 1,
-  },
-  formContent: {
-    gap: 14,
-    paddingBottom: 16,
-  },
-  formField: {
-    gap: 6,
-  },
-  fieldLabel: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    color: '#A1A1AA',
-  },
-  textInput: {
-    backgroundColor: '#111113',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    height: 46,
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 14,
-    color: '#F4F4F5',
-  },
-  iconGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  iconPickerItem: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#18181B',
-    borderWidth: 1.5,
-    borderColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  colorRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  colorCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  colorCircleSelected: {
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-  formActionRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 8,
-  },
-  cancelBtn: {
-    flex: 1,
-    height: 46,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#27272A',
-    backgroundColor: '#18181B',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  cancelBtnText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 13,
-    color: '#A1A1AA',
-  },
-  saveBtn: {
-    flex: 2,
-    height: 46,
-    borderRadius: 12,
-    backgroundColor: '#FFD165',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  saveBtnText: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 14,
-    color: '#09090B',
-  },
-});

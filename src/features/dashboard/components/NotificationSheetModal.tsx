@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { ShieldCheck, AlertCircle } from 'lucide-react-native';
 import { ModalLayout } from '../../../layouts/ModalLayout';
 import { getBudgetsWithUsage, BudgetItemWithUsage } from '../../../database/repositories/budgetRepo';
@@ -60,61 +60,54 @@ export function NotificationSheetModal({
       scrollable
     >
       {loading ? (
-        <View style={styles.loadingContainer}>
+        <View className="py-9 items-center justify-center gap-3">
           <ActivityIndicator size="small" color="#FFD165" />
-          <Text style={styles.loadingText}>Memeriksa status anggaran...</Text>
+          <Text className="font-manrope text-[13px] text-zinc-400">Memeriksa status anggaran...</Text>
         </View>
       ) : alertBudgets.length > 0 ? (
-        <View style={styles.contentContainer}>
-          <View style={styles.summaryBanner}>
+        <View className="gap-3.5">
+          <View className="flex-row items-center gap-2.5 bg-red-500/10 border border-red-500/25 rounded-xl px-3.5 py-2.5">
             <AlertCircle size={18} color="#EF4444" />
-            <Text style={styles.summaryBannerText}>
+            <Text className="flex-1 font-manrope-medium text-[13px] text-red-300">
               Perhatian: {alertBudgets.length} pos anggaran memerlukan perhatian bulan ini.
             </Text>
           </View>
 
-          <View style={styles.listContainer}>
+          <View className="gap-2.5">
             {alertBudgets.map((item) => {
               const isOver = item.status === 'overbudget';
-              const badgeBg = isOver ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)';
-              const badgeBorder = isOver ? 'rgba(239, 68, 68, 0.35)' : 'rgba(245, 158, 11, 0.35)';
-              const badgeText = isOver ? '#EF4444' : '#F59E0B';
+              const badgeBg = isOver ? 'bg-red-500/15 border-red-500/35' : 'bg-amber-500/15 border-amber-500/35';
+              const badgeText = isOver ? 'text-semantic-expense' : 'text-amber-400';
+              const barFillColor = isOver ? '#EF4444' : '#F59E0B';
               const labelText = isOver ? 'Overbudget' : 'Mendekati Batas';
 
               return (
-                <View key={item.id} style={styles.alertCard}>
-                  <View style={styles.cardHeader}>
-                    <View style={styles.categoryInfo}>
-                      <Text style={styles.categoryName}>{item.categoryName}</Text>
-                      <Text style={styles.usageText}>
+                <View key={item.id} className="bg-surface border border-border rounded-[14px] p-3.5 gap-2.5">
+                  <View className="flex-row justify-between items-start gap-2">
+                    <View className="flex-1">
+                      <Text className="font-manrope-bold text-[15px] text-zinc-100">{item.categoryName}</Text>
+                      <Text className="font-mono text-xs text-zinc-400 mt-0.5">
                         Terpakai {formatRupiah(item.spent)} dari {formatRupiah(item.amountLimit)}
                       </Text>
                     </View>
-                    <View
-                      style={[
-                        styles.statusBadge,
-                        { backgroundColor: badgeBg, borderColor: badgeBorder },
-                      ]}
-                    >
-                      <Text style={[styles.statusBadgeText, { color: badgeText }]}>
+                    <View className={`px-2 py-1 rounded-md border ${badgeBg}`}>
+                      <Text className={`font-mono text-[11px] font-medium ${badgeText}`}>
                         {labelText} ({item.percentage}%)
                       </Text>
                     </View>
                   </View>
 
-                  <View style={styles.progressBarTrack}>
+                  <View className="h-1.5 rounded-full bg-border overflow-hidden">
                     <View
-                      style={[
-                        styles.progressBarFill,
-                        {
-                          width: `${Math.min(item.percentage, 100)}%`,
-                          backgroundColor: badgeText,
-                        },
-                      ]}
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${Math.min(item.percentage, 100)}%`,
+                        backgroundColor: barFillColor,
+                      }}
                     />
                   </View>
 
-                  <Text style={styles.adviceText}>
+                  <Text className="font-manrope text-xs text-zinc-500">
                     {isOver
                       ? `Melebihi kuota sebesar ${formatRupiah(Math.abs(item.remaining))}`
                       : `Sisa anggaran tersisa ${formatRupiah(item.remaining)} (${100 - item.percentage}% tersisa)`}
@@ -125,12 +118,14 @@ export function NotificationSheetModal({
           </View>
         </View>
       ) : (
-        <View style={styles.emptyContainer}>
-          <View style={styles.shieldCircle}>
+        <View className="items-center justify-center py-8 px-4">
+          <View className="w-[68px] h-[68px] rounded-full bg-emerald-500/15 border-[1.5px] border-emerald-500/30 items-center justify-center mb-4">
             <ShieldCheck size={36} color="#10B981" strokeWidth={2} />
           </View>
-          <Text style={styles.emptyTitle}>Semua Anggaran Terkendali</Text>
-          <Text style={styles.emptyDescription}>
+          <Text className="font-manrope-bold text-lg text-zinc-100 mb-2 text-center">
+            Semua Anggaran Terkendali
+          </Text>
+          <Text className="font-manrope text-[13px] leading-5 text-zinc-400 text-center">
             {totalBudgetsCount > 0
               ? 'Seluruh pos pengeluaran bulan ini masih berada di bawah 80% dari batas limit. Sistem akan memunculkan indikator peringatan otomatis jika ada pos yang mendekati kuota.'
               : 'Belum ada batas anggaran yang ditetapkan. Anda dapat mengatur target pengeluaran di menu Anggaran (Budgets).'}
@@ -140,124 +135,3 @@ export function NotificationSheetModal({
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    paddingVertical: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  loadingText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 13,
-    color: '#A1A1AA',
-  },
-  contentContainer: {
-    gap: 14,
-  },
-  summaryBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.25)',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  summaryBannerText: {
-    flex: 1,
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 13,
-    color: '#FCA5A5',
-  },
-  listContainer: {
-    gap: 10,
-  },
-  alertCard: {
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    borderRadius: 14,
-    padding: 14,
-    gap: 10,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-  categoryInfo: {
-    flex: 1,
-  },
-  categoryName: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 15,
-    color: '#F4F4F5',
-  },
-  usageText: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 12,
-    color: '#A1A1AA',
-    marginTop: 2,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-  },
-  statusBadgeText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-  },
-  progressBarTrack: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#27272A',
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  adviceText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 12,
-    color: '#71717A',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 16,
-  },
-  shieldCircle: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 18,
-    color: '#F4F4F5',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptyDescription: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 13,
-    lineHeight: 20,
-    color: '#A1A1AA',
-    textAlign: 'center',
-  },
-});

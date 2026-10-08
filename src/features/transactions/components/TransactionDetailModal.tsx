@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Alert,
   ActivityIndicator,
 } from 'react-native';
@@ -48,7 +47,7 @@ export function TransactionDetailModal({
     ? 'Pemasukan'
     : isExpense
     ? 'Pengeluaran'
-    : 'Pindah Saldo (Transfer)';
+    : 'Pindah Kantong';
 
   const signedAmount = formatSignedRupiah(
     item.amount,
@@ -57,16 +56,16 @@ export function TransactionDetailModal({
 
   const handleDeletePress = () => {
     Alert.alert(
-      'Hapus Transaksi?',
-      'Transaksi ini akan dihapus secara permanen. Saldo kantong terkait akan otomatis disesuaikan kembali.',
+      'Hapus Transaksi',
+      'Apakah Anda yakin ingin menghapus catatan mutasi ini? Saldo kantong terkait akan disesuaikan kembali secara otomatis.',
       [
         { text: 'Batal', style: 'cancel' },
         {
           text: 'Hapus',
           style: 'destructive',
           onPress: async () => {
+            setIsDeleting(true);
             try {
-              setIsDeleting(true);
               const success = await onDelete(item.id);
               if (success) {
                 onClose();
@@ -87,18 +86,17 @@ export function TransactionDetailModal({
       title="Rincian Mutasi"
       subtitle={typeLabel}
     >
-      <View style={styles.container}>
+      <View className="gap-4 pb-2">
         {/* Big Amount Card */}
-        <View style={styles.amountCard}>
+        <View className="items-center py-4.5 rounded-2xl bg-[#1C1C20] border border-gold/30">
           <View
-            style={[
-              styles.typeBadge,
+            className={`flex-row items-center gap-1.5 px-2.5 py-1 rounded-full border mb-2 ${
               isIncome
-                ? styles.incomeBadge
+                ? 'bg-emerald-500/10 border-emerald-500/25'
                 : isTransfer
-                ? styles.transferBadge
-                : styles.expenseBadge,
-            ]}
+                ? 'bg-yellow-500/10 border-yellow-500/30'
+                : 'bg-red-500/10 border-red-500/25'
+            }`}
           >
             {isIncome ? (
               <TrendingUp size={14} color="#10B981" />
@@ -108,80 +106,78 @@ export function TransactionDetailModal({
               <TrendingDown size={14} color="#EF4444" />
             )}
             <Text
-              style={[
-                styles.typeBadgeText,
+              className={`font-mono text-[11px] uppercase tracking-wide font-semibold ${
                 isIncome
-                  ? styles.incomeBadgeText
+                  ? 'text-semantic-income'
                   : isTransfer
-                  ? styles.transferBadgeText
-                  : styles.expenseBadgeText,
-              ]}
+                  ? 'text-gold-primary'
+                  : 'text-semantic-expense'
+              }`}
             >
               {typeLabel}
             </Text>
           </View>
 
           <Text
-            style={[
-              styles.amountText,
+            className={`font-grotesk-bold text-3xl tracking-tight ${
               isIncome
-                ? styles.incomeAmountText
+                ? 'text-semantic-income'
                 : isTransfer
-                ? styles.transferAmountText
-                : styles.expenseAmountText,
-            ]}
+                ? 'text-gold-primary'
+                : 'text-semantic-expense'
+            }`}
           >
             {signedAmount}
           </Text>
         </View>
 
         {/* Detailed Metadata Fields */}
-        <View style={styles.detailsCard}>
+        <View className="p-3.5 rounded-2xl bg-surface border border-border gap-1">
           {/* Tanggal & Waktu */}
-          <View style={styles.detailRow}>
-            <View style={styles.detailIconWrapper}>
+          <View className="flex-row items-center gap-3 py-1.5">
+            <View className="w-8 h-8 rounded-full bg-surface-lowest items-center justify-center">
               <Calendar size={16} color="#71717A" />
             </View>
-            <View style={styles.detailInfo}>
-              <Text style={styles.detailLabel}>Waktu Mutasi</Text>
-              <Text style={styles.detailValue}>{formatFullDateTime(item.date)}</Text>
+            <View className="flex-1">
+              <Text className="font-mono text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">Waktu Mutasi</Text>
+              <Text className="font-manrope-semibold text-sm text-zinc-100">{formatFullDateTime(item.date)}</Text>
             </View>
           </View>
 
-          <View style={styles.divider} />
+          <View className="h-[1px] bg-border/60 my-1" />
 
           {/* Kategori */}
-          <View style={styles.detailRow}>
-            <View style={styles.detailIconWrapper}>
+          <View className="flex-row items-center gap-3 py-1.5">
+            <View className="w-8 h-8 rounded-full bg-surface-lowest items-center justify-center">
               <Tag size={16} color="#71717A" />
             </View>
-            <View style={styles.detailInfo}>
-              <Text style={styles.detailLabel}>Kategori</Text>
-              <Text style={styles.detailValue}>
+            <View className="flex-1">
+              <Text className="font-mono text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">Kategori</Text>
+              <Text className="font-manrope-semibold text-sm text-zinc-100">
                 {isTransfer ? 'Transfer Antar-Kantong' : item.categoryName}
               </Text>
             </View>
           </View>
 
-          <View style={styles.divider} />
+          <View className="h-[1px] bg-border/60 my-1" />
 
           {/* Kantong */}
-          <View style={styles.detailRow}>
-            <View style={styles.detailIconWrapper}>
+          <View className="flex-row items-center gap-3 py-1.5">
+            <View className="w-8 h-8 rounded-full bg-surface-lowest items-center justify-center">
               <Wallet size={16} color="#71717A" />
             </View>
-            <View style={styles.detailInfo}>
-              <Text style={styles.detailLabel}>
+            <View className="flex-1">
+              <Text className="font-mono text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">
                 {isTransfer ? 'Alur Kantong' : 'Kantong'}
               </Text>
               {isTransfer && item.toWalletName ? (
-                <View style={styles.transferFlow}>
-                  <Text style={styles.walletHighlight}>{item.walletName}</Text>
+                <View className="flex-row items-center gap-1.5">
+                  <Text className="font-manrope-bold text-sm text-gold-primary">{item.walletName}</Text>
                   <ArrowRight size={14} color="#FFD165" />
-                  <Text style={styles.walletHighlight}>{item.toWalletName}</Text>
+                  <Text className="font-manrope-bold text-sm text-gold-primary">{item.toWalletName}</Text>
                 </View>
               ) : (
-                <Text style={styles.detailValue}>{item.walletName}</Text>
+                <Text className="font-manrope-semibold text-sm text-zinc-100">{item.walletName}</Text>
               )}
             </View>
           </View>
@@ -189,14 +185,14 @@ export function TransactionDetailModal({
           {/* Catatan (jika ada) */}
           {item.notes && item.notes.trim().length > 0 && (
             <>
-              <View style={styles.divider} />
-              <View style={styles.detailRow}>
-                <View style={styles.detailIconWrapper}>
+              <View className="h-[1px] bg-border/60 my-1" />
+              <View className="flex-row items-center gap-3 py-1.5">
+                <View className="w-8 h-8 rounded-full bg-surface-lowest items-center justify-center">
                   <FileText size={16} color="#71717A" />
                 </View>
-                <View style={styles.detailInfo}>
-                  <Text style={styles.detailLabel}>Catatan Deskripsi</Text>
-                  <Text style={styles.notesValue}>{item.notes}</Text>
+                <View className="flex-1">
+                  <Text className="font-mono text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">Catatan Deskripsi</Text>
+                  <Text className="font-manrope text-sm text-zinc-300 leading-5">{item.notes}</Text>
                 </View>
               </View>
             </>
@@ -205,7 +201,7 @@ export function TransactionDetailModal({
 
         {/* Delete Button */}
         <TouchableOpacity
-          style={styles.deleteButton}
+          className="flex-row items-center justify-center gap-2 py-3 rounded-xl bg-red-500/10 border border-red-500/25 mt-1"
           onPress={handleDeletePress}
           disabled={isDeleting}
           activeOpacity={0.75}
@@ -215,7 +211,7 @@ export function TransactionDetailModal({
           ) : (
             <>
               <Trash2 size={16} color="#EF4444" strokeWidth={2.2} />
-              <Text style={styles.deleteButtonText}>Hapus Transaksi</Text>
+              <Text className="font-manrope-bold text-sm text-semantic-expense">Hapus Transaksi</Text>
             </>
           )}
         </TouchableOpacity>
@@ -223,145 +219,3 @@ export function TransactionDetailModal({
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: 16,
-    paddingBottom: 8,
-  },
-  amountCard: {
-    alignItems: 'center',
-    paddingVertical: 18,
-    borderRadius: 16,
-    backgroundColor: '#1C1C20',
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.3)',
-  },
-  typeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 8,
-  },
-  incomeBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-  },
-  expenseBadge: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-  },
-  transferBadge: {
-    backgroundColor: 'rgba(234, 179, 8, 0.12)',
-    borderColor: 'rgba(234, 179, 8, 0.3)',
-  },
-  typeBadgeText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  incomeBadgeText: {
-    color: '#10B981',
-  },
-  expenseBadgeText: {
-    color: '#EF4444',
-  },
-  transferBadgeText: {
-    color: '#FFD165',
-  },
-  amountText: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 32,
-    letterSpacing: -0.5,
-  },
-  incomeAmountText: {
-    color: '#10B981',
-  },
-  expenseAmountText: {
-    color: '#EF4444',
-  },
-  transferAmountText: {
-    color: '#FFD165',
-  },
-  detailsCard: {
-    backgroundColor: '#18181B',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.25)',
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  detailIconWrapper: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#131316',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  detailInfo: {
-    flex: 1,
-  },
-  detailLabel: {
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 11,
-    color: '#71717A',
-    marginBottom: 2,
-  },
-  detailValue: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 13,
-    color: '#F4F4F5',
-  },
-  notesValue: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 13,
-    color: '#D4D4D8',
-    lineHeight: 18,
-  },
-  transferFlow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 2,
-  },
-  walletHighlight: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 12,
-    color: '#FFD165',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: 'rgba(39, 39, 42, 0.6)',
-  },
-  deleteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-    marginTop: 4,
-  },
-  deleteButtonText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 14,
-    color: '#EF4444',
-  },
-});

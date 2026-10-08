@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { ShieldCheck, AlertTriangle } from 'lucide-react-native';
 import { BudgetOverallSummary } from '../../../database/repositories/budgetRepo';
 import { BudgetProgressBar } from './BudgetProgressBar';
@@ -15,47 +15,57 @@ export function BudgetHeroCard({ summary, periodLabel }: BudgetHeroCardProps) {
   const isWarning = summary.status === 'warning';
 
   return (
-    <View style={styles.card}>
+    <View
+      className="rounded-[20px] bg-[#1C1C20] border border-gold/30 p-5 relative overflow-hidden gap-3.5"
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.4,
+        shadowRadius: 14,
+        elevation: 6,
+      }}
+    >
       {/* Decorative Golden Ambient Bloom */}
-      <View style={styles.goldenBloom} />
+      <View className="absolute -top-10 -right-8 w-[140px] h-[140px] rounded-full bg-gold/10" />
 
       {/* Top Header */}
-      <View style={styles.headerRow}>
+      <View className="flex-row items-start justify-between">
         <View>
-          <Text style={styles.headerSubtitle}>Total Plafon Belanja</Text>
-          <Text style={styles.periodText}>{periodLabel}</Text>
+          <Text className="font-mono text-[11px] uppercase tracking-wider text-[#D3C5AC] mb-0.5">
+            Total Plafon Belanja
+          </Text>
+          <Text className="font-manrope text-xs text-zinc-400">{periodLabel}</Text>
         </View>
 
-        <View style={styles.badgeCount}>
-          <Text style={styles.badgeCountText}>
+        <View className="px-2 py-0.5 rounded-[10px] bg-gold/10 border border-gold/30">
+          <Text className="font-mono text-[10px] text-gold-primary font-semibold">
             {summary.budgetCount} Pos Anggaran
           </Text>
         </View>
       </View>
 
       {/* Big Total Budget Number */}
-      <Text style={styles.totalBudgetAmount}>
+      <Text className="font-grotesk-bold text-[32px] text-zinc-100 tracking-tight">
         {formatRupiah(summary.totalBudget)}
       </Text>
 
       {/* Aggregate Progress Bar */}
-      <View style={styles.progressSection}>
-        <View style={styles.progressHeader}>
-          <View style={styles.healthStatus}>
+      <View className="gap-1.5">
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center gap-1.5">
             {isOverbudget ? (
               <AlertTriangle size={13} color="#EF4444" />
             ) : (
               <ShieldCheck size={13} color="#10B981" />
             )}
             <Text
-              style={[
-                styles.healthStatusText,
+              className={`font-manrope-semibold text-[11px] ${
                 isOverbudget
-                  ? styles.healthStatusTextOverbudget
+                  ? 'text-semantic-expense'
                   : isWarning
-                  ? styles.healthStatusTextWarning
-                  : styles.healthStatusTextSafe,
-              ]}
+                  ? 'text-amber-500'
+                  : 'text-semantic-income'
+              }`}
             >
               {isOverbudget
                 ? 'Melebihi Kuota Anggaran'
@@ -64,7 +74,7 @@ export function BudgetHeroCard({ summary, periodLabel }: BudgetHeroCardProps) {
                 : 'Pengeluaran Terkendali Aman'}
             </Text>
           </View>
-          <Text style={styles.percentageText}>{summary.overallPercentage}%</Text>
+          <Text className="font-mono text-xs text-zinc-300 font-bold">{summary.overallPercentage}%</Text>
         </View>
 
         <BudgetProgressBar
@@ -75,30 +85,28 @@ export function BudgetHeroCard({ summary, periodLabel }: BudgetHeroCardProps) {
       </View>
 
       {/* 2-Column Split Details */}
-      <View style={styles.splitRow}>
-        <View style={styles.splitCol}>
-          <Text style={styles.splitLabel}>Total Terpakai</Text>
+      <View className="flex-row items-center pt-3 border-t border-border/80">
+        <View className="flex-1 gap-0.5">
+          <Text className="font-manrope text-[10px] text-zinc-500 uppercase tracking-wider">Total Terpakai</Text>
           <Text
-            style={[
-              styles.splitValue,
-              isOverbudget && styles.splitValueOverbudget,
-            ]}
+            className={`font-mono text-sm font-semibold ${
+              isOverbudget ? 'text-semantic-expense' : 'text-zinc-100'
+            }`}
           >
             {formatRupiah(summary.totalSpent)}
           </Text>
         </View>
 
-        <View style={styles.splitDivider} />
+        <View className="w-[1px] h-7 bg-zinc-700/50 mx-3" />
 
-        <View style={[styles.splitCol, styles.splitColRight]}>
-          <Text style={styles.splitLabel}>
+        <View className="flex-1 items-end gap-0.5">
+          <Text className="font-manrope text-[10px] text-zinc-500 uppercase tracking-wider">
             {isOverbudget ? 'Kelebihan Belanja' : 'Sisa Kuota'}
           </Text>
           <Text
-            style={[
-              styles.splitValue,
-              isOverbudget ? styles.splitValueOverbudget : styles.splitValueRemaining,
-            ]}
+            className={`font-mono text-sm font-semibold ${
+              isOverbudget ? 'text-semantic-expense' : 'text-semantic-income'
+            }`}
           >
             {isOverbudget
               ? `-${formatRupiah(Math.abs(summary.totalRemaining))}`
@@ -109,139 +117,3 @@ export function BudgetHeroCard({ summary, periodLabel }: BudgetHeroCardProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: 20,
-    backgroundColor: '#1C1C20',
-    borderWidth: 1,
-    borderColor: 'rgba(234, 179, 8, 0.28)',
-    padding: 20,
-    position: 'relative',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 14,
-    elevation: 6,
-    gap: 14,
-  },
-  goldenBloom: {
-    position: 'absolute',
-    top: -40,
-    right: -30,
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: 'rgba(234, 179, 8, 0.08)',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  headerSubtitle: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    color: '#D3C5AC',
-    marginBottom: 2,
-  },
-  periodText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 12,
-    color: '#A1A1AA',
-  },
-  badgeCount: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
-    backgroundColor: 'rgba(234, 179, 8, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(234, 179, 8, 0.3)',
-  },
-  badgeCountText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    color: '#FFD165',
-    fontWeight: '600',
-  },
-  totalBudgetAmount: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 32,
-    color: '#F4F4F5',
-    letterSpacing: -0.5,
-  },
-  progressSection: {
-    gap: 6,
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  healthStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  healthStatusText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 11,
-  },
-  healthStatusTextSafe: {
-    color: '#10B981',
-  },
-  healthStatusTextWarning: {
-    color: '#F59E0B',
-  },
-  healthStatusTextOverbudget: {
-    color: '#EF4444',
-  },
-  percentageText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 12,
-    color: '#D4D4D8',
-    fontWeight: '700',
-  },
-  splitRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(39, 39, 42, 0.8)',
-  },
-  splitCol: {
-    flex: 1,
-    gap: 2,
-  },
-  splitColRight: {
-    alignItems: 'flex-end',
-  },
-  splitDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: 'rgba(63, 63, 70, 0.5)',
-    marginHorizontal: 12,
-  },
-  splitLabel: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 10,
-    color: '#71717A',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  splitValue: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 14,
-    color: '#F4F4F5',
-    fontWeight: '600',
-  },
-  splitValueRemaining: {
-    color: '#10B981',
-  },
-  splitValueOverbudget: {
-    color: '#EF4444',
-  },
-});

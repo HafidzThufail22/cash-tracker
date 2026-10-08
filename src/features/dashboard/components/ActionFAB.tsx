@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import {
   TouchableOpacity,
-  StyleSheet,
   Animated,
   Platform,
 } from 'react-native';
@@ -50,13 +49,23 @@ export function ActionFAB({ isOpen, onPress }: ActionFABProps) {
 
   return (
     <Animated.View
+      className="absolute right-4 z-[200]"
       style={[
-        styles.wrapper,
+        { bottom: Platform.OS === 'ios' ? 76 : 68 },
         { transform: [{ scale: scaleAnim }] },
       ]}
     >
       <TouchableOpacity
-        style={[styles.fab, isOpen && styles.fabOpen]}
+        className={`w-14 h-14 rounded-full items-center justify-center border border-gold-primary/60 shadow-xl ${
+          isOpen ? 'bg-gold-primary' : 'bg-gold'
+        }`}
+        style={{
+          shadowColor: '#EAB308',
+          shadowOffset: { width: 0, height: 6 },
+          shadowOpacity: isOpen ? 0.6 : 0.45,
+          shadowRadius: isOpen ? 20 : 14,
+          elevation: 10,
+        }}
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
@@ -65,38 +74,9 @@ export function ActionFAB({ isOpen, onPress }: ActionFABProps) {
         accessibilityLabel={isOpen ? 'Tutup menu aksi' : 'Buka menu aksi'}
       >
         <Animated.View style={{ transform: [{ rotate }] }}>
-          <Plus size={26} color={isOpen ? '#09090B' : '#09090B'} strokeWidth={2.5} />
+          <Plus size={26} color="#09090B" strokeWidth={2.5} />
         </Animated.View>
       </TouchableOpacity>
     </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 76 : 68,
-    right: 16,
-    zIndex: 200,
-  },
-  fab: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#EAB308',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#EAB308',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.45,
-    shadowRadius: 14,
-    elevation: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 209, 101, 0.6)',
-  },
-  fabOpen: {
-    backgroundColor: '#FFD165',
-    shadowOpacity: 0.6,
-    shadowRadius: 20,
-  },
-});

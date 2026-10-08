@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { Layers, Check, Wallet as WalletIcon } from 'lucide-react-native';
 import { ModalLayout } from '../../../layouts/ModalLayout';
 import { WalletWithBalance } from '../../../database/repositories/walletRepo';
@@ -28,47 +28,51 @@ export function WalletPickerModal({
       subtitle="Filter Saldo & Mutasi"
       scrollable={false}
     >
-      <View style={styles.container}>
+      <View className="max-h-[440px] gap-2">
         {/* Option 1: Semua Kantong Kas */}
         <TouchableOpacity
-          style={[
-            styles.walletItemCard,
-            selectedWalletId === null && styles.walletItemCardActive,
-          ]}
+          className={`flex-row items-center bg-surface border rounded-[14px] p-3 gap-3 ${
+            selectedWalletId === null
+              ? 'border-gold/50 bg-gold/10'
+              : 'border-border'
+          }`}
           onPress={() => {
             onSelectWallet(null);
             onClose();
           }}
           activeOpacity={0.7}
         >
-          <View style={[styles.iconWrap, styles.allWalletsIconWrap]}>
+          <View className="w-[38px] h-[38px] rounded-full items-center justify-center bg-gold/15">
             <Layers size={18} color="#FFD165" />
           </View>
-          <View style={styles.walletInfo}>
+          <View className="flex-1">
             <Text
-              style={[
-                styles.walletName,
-                selectedWalletId === null && styles.walletNameActive,
-              ]}
+              className={`text-sm ${
+                selectedWalletId === null
+                  ? 'text-gold-primary font-manrope-bold'
+                  : 'font-manrope-semibold text-zinc-100'
+              }`}
             >
               Semua Kantong
             </Text>
-            <Text style={styles.walletMeta}>Gabungan seluruh rekening & kas</Text>
+            <Text className="font-manrope text-[11px] text-zinc-500 mt-0.5">
+              Gabungan seluruh rekening & kas
+            </Text>
           </View>
           {selectedWalletId === null && (
-            <View style={styles.checkCircle}>
+            <View className="w-[22px] h-[22px] rounded-full bg-gold-primary items-center justify-center">
               <Check size={14} color="#09090B" strokeWidth={3} />
             </View>
           )}
         </TouchableOpacity>
 
-        <View style={styles.divider} />
+        <View className="h-[1px] bg-border my-1" />
 
         {/* List of Individual Wallets */}
         <FlatList
           data={wallets}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={{ gap: 8, paddingBottom: 12 }}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
             const isSelected = selectedWalletId === item.id;
@@ -76,36 +80,41 @@ export function WalletPickerModal({
 
             return (
               <TouchableOpacity
-                style={[
-                  styles.walletItemCard,
-                  isSelected && styles.walletItemCardActive,
-                ]}
+                className={`flex-row items-center bg-surface border rounded-[14px] p-3 gap-3 ${
+                  isSelected
+                    ? 'border-gold/50 bg-gold/10'
+                    : 'border-border'
+                }`}
                 onPress={() => {
                   onSelectWallet(item.id);
                   onClose();
                 }}
                 activeOpacity={0.7}
               >
-                <View style={[styles.iconWrap, { backgroundColor: `${color}20` }]}>
+                <View
+                  className="w-[38px] h-[38px] rounded-full items-center justify-center"
+                  style={{ backgroundColor: `${color}20` }}
+                >
                   <WalletIcon size={18} color={color} />
                 </View>
 
-                <View style={styles.walletInfo}>
+                <View className="flex-1">
                   <Text
-                    style={[
-                      styles.walletName,
-                      isSelected && styles.walletNameActive,
-                    ]}
+                    className={`text-sm ${
+                      isSelected
+                        ? 'text-gold-primary font-manrope-bold'
+                        : 'font-manrope-semibold text-zinc-100'
+                    }`}
                   >
                     {item.name}
                   </Text>
-                  <Text style={styles.walletBalanceText}>
+                  <Text className="font-mono text-xs text-zinc-400 mt-0.5">
                     {formatRupiah(item.balance)}
                   </Text>
                 </View>
 
                 {isSelected && (
-                  <View style={styles.checkCircle}>
+                  <View className="w-[22px] h-[22px] rounded-full bg-gold-primary items-center justify-center">
                     <Check size={14} color="#09090B" strokeWidth={3} />
                   </View>
                 )}
@@ -117,75 +126,3 @@ export function WalletPickerModal({
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    maxHeight: 440,
-    gap: 8,
-  },
-  walletItemCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    borderRadius: 14,
-    padding: 12,
-    gap: 12,
-  },
-  walletItemCardActive: {
-    borderColor: 'rgba(234, 179, 8, 0.5)',
-    backgroundColor: 'rgba(234, 179, 8, 0.08)',
-  },
-  iconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  allWalletsIconWrap: {
-    backgroundColor: 'rgba(234, 179, 8, 0.15)',
-  },
-  walletInfo: {
-    flex: 1,
-  },
-  walletName: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 14,
-    color: '#F4F4F5',
-  },
-  walletNameActive: {
-    color: '#FFD165',
-    fontFamily: 'Manrope_700Bold',
-  },
-  walletMeta: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 11,
-    color: '#71717A',
-    marginTop: 2,
-  },
-  walletBalanceText: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 12,
-    color: '#A1A1AA',
-    marginTop: 2,
-  },
-  checkCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#FFD165',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#27272A',
-    marginVertical: 4,
-  },
-  listContent: {
-    gap: 8,
-    paddingBottom: 12,
-  },
-});

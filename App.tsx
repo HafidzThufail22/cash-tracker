@@ -1,5 +1,6 @@
+import './global.css';
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, Animated, Easing } from 'react-native';
+import { View, Text, ActivityIndicator, Animated, Easing } from 'react-native';
 import { useFonts } from 'expo-font';
 import {
   SpaceGrotesk_600SemiBold,
@@ -114,10 +115,12 @@ export default function App() {
 
   if (!fontsLoaded || !isDbReady) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 bg-background items-center justify-center gap-3">
         <ActivityIndicator size="large" color="#FFD165" />
-        <Text style={styles.loadingTitle}>CASH TRACKER</Text>
-        <Text style={styles.loadingSubtitle}>{dbStatusMessage}</Text>
+        <Text className="font-grotesk-bold text-lg tracking-[2px] text-gold-primary mt-2">
+          CASH TRACKER
+        </Text>
+        <Text className="font-mono text-xs text-zinc-500">{dbStatusMessage}</Text>
       </View>
     );
   }
@@ -142,13 +145,11 @@ export default function App() {
         />
 
         <Animated.View
-          style={[
-            styles.mainContent,
-            {
-              opacity: screenFadeAnim,
-              transform: [{ translateY: screenTranslateAnim }],
-            },
-          ]}
+          className="flex-1 relative"
+          style={{
+            opacity: screenFadeAnim,
+            transform: [{ translateY: screenTranslateAnim }],
+          }}
         >
           {currentTab === 'dashboard' ? (
             <DashboardScreen
@@ -190,29 +191,3 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: '#09090B',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  loadingTitle: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 18,
-    letterSpacing: 2,
-    color: '#FFD165',
-    marginTop: 8,
-  },
-  loadingSubtitle: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 12,
-    color: '#71717A',
-  },
-  mainContent: {
-    flex: 1,
-    position: 'relative',
-  },
-});

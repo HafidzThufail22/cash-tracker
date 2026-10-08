@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import {
   ArrowLeftRight,
   TrendingUp,
@@ -70,70 +70,68 @@ export function TransactionItem({ item, onPress, isLast = false }: TransactionIt
 
   return (
     <TouchableOpacity
-      style={[styles.itemRow, !isLast && styles.itemBorderBottom]}
+      className={`flex-row items-center py-3.5 px-3.5 ${!isLast ? 'border-b border-border/60' : ''}`}
       onPress={() => onPress?.(item)}
       activeOpacity={0.7}
     >
       {/* Left: Icon Box */}
       <View
-        style={[
-          styles.iconBox,
+        className={`w-10 h-10 rounded-xl items-center justify-center bg-surface-lowest border mr-3 ${
           isIncome
-            ? styles.incomeIconBox
+            ? 'border-emerald-500/25'
             : isTransfer
-            ? styles.transferIconBox
-            : styles.expenseIconBox,
-        ]}
+            ? 'border-yellow-500/30'
+            : 'border-red-500/25'
+        }`}
       >
         {getCategoryIcon(item.categoryName, item.type)}
       </View>
 
       {/* Center: Title & Subtitle */}
-      <View style={styles.centerDetails}>
-        <Text style={styles.itemTitle} numberOfLines={1}>
+      <View className="flex-1 justify-center">
+        <Text className="font-manrope-semibold text-sm text-zinc-100 mb-0.5" numberOfLines={1}>
           {item.notes || item.categoryName}
         </Text>
-        <View style={styles.metaRow}>
-          <Text style={styles.categoryName} numberOfLines={1}>
+        <View className="flex-row items-center gap-1.5">
+          <Text className="font-mono text-[10px] uppercase tracking-wide text-[#9B8F79]" numberOfLines={1}>
             {isTransfer ? 'Transfer Saldo' : item.categoryName}
           </Text>
           {timeStr.length > 0 && (
             <>
-              <View style={styles.dotDivider} />
-              <Text style={styles.timeText}>{timeStr}</Text>
+              <View className="w-[3px] h-[3px] rounded-full bg-zinc-700" />
+              <Text className="font-mono text-[10px] text-zinc-500">{timeStr}</Text>
             </>
           )}
         </View>
       </View>
 
       {/* Right: Amount & Wallet */}
-      <View style={styles.rightDetails}>
+      <View className="items-end ml-2">
         <Text
-          style={[
-            styles.amountText,
+          className={`font-mono text-[13px] tracking-tight mb-0.5 font-semibold ${
             isIncome
-              ? styles.incomeAmount
+              ? 'text-semantic-income'
               : isTransfer
-              ? styles.transferAmount
-              : styles.expenseAmount,
-          ]}
+              ? 'text-gold-primary'
+              : 'text-semantic-expense'
+          }`}
           numberOfLines={1}
         >
           {signedText}
         </Text>
 
         {isTransfer && item.toWalletName ? (
-          <View style={styles.transferWalletRow}>
-            <Text style={styles.walletName} numberOfLines={1}>
+          <View className="flex-row items-center gap-1">
+            <Text className="font-mono text-[10px] uppercase tracking-wide text-zinc-500" numberOfLines={1}>
               {item.walletName}
             </Text>
             <ArrowRight size={10} color="#71717A" />
-            <Text style={styles.walletName} numberOfLines={1}>
+            <Text className="font-mono text-[10px] uppercase tracking-wide text-zinc-500" numberOfLines={1}>
               {item.toWalletName}
             </Text>
           </View>
         ) : (
-          <Text style={styles.walletName} numberOfLines={1}>
+          <Text className="font-mono text-[10px] uppercase tracking-wide text-zinc-500" numberOfLines={1}>
             {item.walletName}
           </Text>
         )}
@@ -141,100 +139,3 @@ export function TransactionItem({ item, onPress, isLast = false }: TransactionIt
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 13,
-    paddingHorizontal: 14,
-  },
-  itemBorderBottom: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(39, 39, 42, 0.6)',
-  },
-  iconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0E0E11',
-    borderWidth: 1,
-    marginRight: 12,
-  },
-  incomeIconBox: {
-    borderColor: 'rgba(16, 185, 129, 0.25)',
-  },
-  expenseIconBox: {
-    borderColor: 'rgba(239, 68, 68, 0.25)',
-  },
-  transferIconBox: {
-    borderColor: 'rgba(234, 179, 8, 0.3)',
-  },
-  centerDetails: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  itemTitle: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 14,
-    color: '#F4F4F5',
-    marginBottom: 3,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  categoryName: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    color: '#9B8F79',
-  },
-  dotDivider: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: '#3F3F46',
-  },
-  timeText: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 10,
-    color: '#71717A',
-  },
-  rightDetails: {
-    alignItems: 'flex-end',
-    marginLeft: 8,
-  },
-  amountText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 13,
-    letterSpacing: -0.2,
-    marginBottom: 2,
-    fontWeight: '600',
-  },
-  incomeAmount: {
-    color: '#10B981',
-  },
-  expenseAmount: {
-    color: '#EF4444',
-  },
-  transferAmount: {
-    color: '#FFD165',
-  },
-  walletName: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    color: '#71717A',
-  },
-  transferWalletRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-});

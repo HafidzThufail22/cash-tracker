@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Wallet, Landmark, PiggyBank, Plus, Check } from 'lucide-react-native';
 import { ModalLayout } from '../../../layouts/ModalLayout';
 import { InputField } from '../../../components/common/InputField';
@@ -92,7 +92,7 @@ export function AddWalletModal({ visible, onClose, onSuccess }: AddWalletModalPr
       title="Tambah Kantong Baru"
       subtitle="Manajemen Pos Finansial"
     >
-      <View style={styles.container}>
+      <View className="pb-2.5">
         {/* Input Nama Kantong */}
         <InputField
           label="Nama Kantong"
@@ -106,18 +106,19 @@ export function AddWalletModal({ visible, onClose, onSuccess }: AddWalletModalPr
         />
 
         {/* Pilihan Tipe Kantong */}
-        <Text style={styles.sectionLabel}>Tipe Pos / Kantong</Text>
-        <View style={styles.typesRow}>
+        <Text className="font-mono text-[11px] uppercase tracking-wider text-[#D3C5AC] mb-2">
+          Tipe Pos / Kantong
+        </Text>
+        <View className="flex-row gap-2 mb-4">
           {WALLET_TYPES.map((t) => {
             const isSelected = type === t.id;
             const IconComponent = t.Icon;
             return (
               <TouchableOpacity
                 key={t.id}
-                style={[
-                  styles.typeButton,
-                  isSelected && styles.selectedTypeButton,
-                ]}
+                className={`flex-1 items-center justify-center py-3 px-1.5 rounded-xl bg-[#1F1F22] border gap-1.5 ${
+                  isSelected ? 'border-gold bg-gold/10' : 'border-border'
+                }`}
                 onPress={() => setType(t.id)}
                 activeOpacity={0.7}
               >
@@ -126,10 +127,9 @@ export function AddWalletModal({ visible, onClose, onSuccess }: AddWalletModalPr
                   color={isSelected ? '#FFD165' : '#71717A'}
                 />
                 <Text
-                  style={[
-                    styles.typeLabel,
-                    isSelected && styles.selectedTypeLabel,
-                  ]}
+                  className={`font-manrope-medium text-[11px] text-center ${
+                    isSelected ? 'text-gold-primary font-bold' : 'text-zinc-400'
+                  }`}
                 >
                   {t.label}
                 </Text>
@@ -144,18 +144,20 @@ export function AddWalletModal({ visible, onClose, onSuccess }: AddWalletModalPr
           value={initialBalance}
           onChangeValue={setInitialBalance}
           placeholder="0"
-          style={styles.currencyInput}
         />
 
         {/* Pilihan Aksen Warna */}
-        <Text style={styles.sectionLabel}>Warna Aksen</Text>
-        <View style={styles.colorPresetsRow}>
+        <Text className="font-mono text-[11px] uppercase tracking-wider text-[#D3C5AC] mb-2">
+          Warna Aksen
+        </Text>
+        <View className="flex-row gap-3 mb-5">
           {COLOR_PRESETS.map((color) => {
             const isSelected = selectedColor === color;
             return (
               <TouchableOpacity
                 key={color}
-                style={[styles.colorCircle, { backgroundColor: color }]}
+                className="w-[34px] h-[34px] rounded-full items-center justify-center"
+                style={{ backgroundColor: color }}
                 onPress={() => setSelectedColor(color)}
                 activeOpacity={0.8}
               >
@@ -167,8 +169,8 @@ export function AddWalletModal({ visible, onClose, onSuccess }: AddWalletModalPr
 
         {/* Notifikasi Error */}
         {error && (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{error}</Text>
+          <View className="p-2.5 rounded-xl bg-red-500/15 border border-red-500/30 mb-3.5">
+            <Text className="font-manrope-medium text-xs text-semantic-expense text-center">{error}</Text>
           </View>
         )}
 
@@ -178,87 +180,8 @@ export function AddWalletModal({ visible, onClose, onSuccess }: AddWalletModalPr
           onPress={handleSubmit}
           loading={isSubmitting}
           icon={<Plus size={18} color="#09090B" strokeWidth={2.5} />}
-          style={styles.submitButton}
         />
       </View>
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 10,
-  },
-  sectionLabel: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    color: '#D3C5AC',
-    marginBottom: 8,
-  },
-  typesRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
-  },
-  typeButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 6,
-    borderRadius: 12,
-    backgroundColor: '#1F1F22',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    gap: 6,
-  },
-  selectedTypeButton: {
-    borderColor: '#EAB308',
-    backgroundColor: 'rgba(234, 179, 8, 0.08)',
-  },
-  typeLabel: {
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 11,
-    color: '#A1A1AA',
-    textAlign: 'center',
-  },
-  selectedTypeLabel: {
-    color: '#FFD165',
-    fontWeight: '700',
-  },
-  currencyInput: {
-    marginBottom: 12,
-  },
-  colorPresetsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 20,
-  },
-  colorCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorBox: {
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-    marginBottom: 14,
-  },
-  errorText: {
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 12,
-    color: '#EF4444',
-    textAlign: 'center',
-  },
-  submitButton: {
-    marginTop: 4,
-  },
-});
-

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { BudgetStatus } from '../../../database/repositories/budgetRepo';
 
 interface BudgetProgressBarProps {
@@ -23,28 +23,18 @@ export function BudgetProgressBar({
       : '#EAB308'; // Emas untuk kondisi aman
 
   return (
-    <View style={[styles.track, { height, borderRadius: height / 2 }]}>
+    <View
+      className="w-full bg-border overflow-hidden"
+      style={{ height, borderRadius: height / 2 }}
+    >
       <View
-        style={[
-          styles.fill,
-          {
-            width: `${clampedWidth}%`,
-            backgroundColor: fillColor,
-            borderRadius: height / 2,
-          },
-        ]}
+        className="h-full"
+        style={{
+          width: `${clampedWidth}%`,
+          backgroundColor: fillColor,
+          borderRadius: height / 2,
+        }}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  track: {
-    width: '100%',
-    backgroundColor: '#27272A',
-    overflow: 'hidden',
-  },
-  fill: {
-    height: '100%',
-  },
-});

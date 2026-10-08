@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  StyleSheet,
   RefreshControl,
   Platform,
 } from 'react-native';
@@ -62,7 +61,6 @@ export function WalletsScreen({
     onTransferClosed?.();
   };
 
-  // Jika sedang membuka detail kantong tertentu, tampilkan WalletDetailScreen
   if (selectedWallet) {
     return (
       <>
@@ -84,8 +82,12 @@ export function WalletsScreen({
 
   return (
     <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+      className="flex-1 bg-background"
+      contentContainerStyle={{
+        paddingHorizontal: 16,
+        paddingTop: 12,
+        paddingBottom: Platform.OS === 'ios' ? 88 : 80,
+      }}
       showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl
@@ -97,54 +99,64 @@ export function WalletsScreen({
       }
     >
       {/* Hero Total Assets Card */}
-      <View style={styles.heroCard}>
-        <View style={styles.goldenBloom} />
+      <View className="p-5 rounded-[22px] bg-surface border border-gold/30 mb-4 relative overflow-hidden">
+        <View className="absolute -top-12 -right-12 w-[160px] h-[160px] rounded-full bg-gold/10" />
 
-        <View style={styles.heroHeader}>
-          <Text style={styles.heroSubtitle}>Total Saldo Terdistribusi</Text>
-          <View style={styles.countBadge}>
-            <Text style={styles.countBadgeText}>{wallets.length} Kantong</Text>
+        <View className="flex-row items-center justify-between mb-2">
+          <Text className="font-mono text-xs uppercase tracking-wider text-zinc-400 font-semibold">
+            Total Saldo Terdistribusi
+          </Text>
+          <View className="px-2.5 py-1 rounded-full bg-gold/10 border border-gold/25">
+            <Text className="font-mono text-[11px] text-gold-primary font-bold">
+              {wallets.length} Kantong
+            </Text>
           </View>
         </View>
 
-        <Text style={styles.heroBalance}>{formatRupiah(totalAssets)}</Text>
+        <Text className="font-grotesk-bold text-3xl text-zinc-100 tracking-tight mb-2.5">
+          {formatRupiah(totalAssets)}
+        </Text>
 
-        <Text style={styles.heroNote}>
+        <Text className="font-manrope text-xs text-zinc-400 leading-4">
           Semua kantong kas fisik, rekening bank, dan tabungan terakumulasi mandiri secara lokal.
         </Text>
       </View>
 
       {/* Quick Action Buttons */}
-      <View style={styles.actionButtonsRow}>
+      <View className="flex-row gap-2.5 mb-5">
         <TouchableOpacity
-          style={styles.transferButton}
+          className="flex-1 flex-row items-center justify-center gap-2 h-12 rounded-xl bg-gold shadow-md shadow-gold/30"
           onPress={() => setIsTransferModalOpen(true)}
           activeOpacity={0.8}
         >
           <ArrowRightLeft size={18} color="#09090B" strokeWidth={2.5} />
-          <Text style={styles.transferButtonText}>Pindah Saldo</Text>
+          <Text className="font-manrope-bold text-sm text-background">Pindah Saldo</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.addWalletButton}
+          className="flex-1 flex-row items-center justify-center gap-2 h-12 rounded-xl bg-surface border border-border"
           onPress={() => setIsAddWalletModalOpen(true)}
           activeOpacity={0.7}
         >
           <Plus size={18} color="#F4F4F5" strokeWidth={2.2} />
-          <Text style={styles.addWalletButtonText}>Tambah Kantong</Text>
+          <Text className="font-manrope-semibold text-sm text-zinc-100">Tambah Kantong</Text>
         </TouchableOpacity>
       </View>
 
       {/* Wallets Vertical List */}
-      <View style={styles.listSection}>
-        <Text style={styles.sectionTitle}>Daftar Pos Finansial</Text>
+      <View className="mb-6">
+        <Text className="font-manrope-bold text-lg text-zinc-100 tracking-tight mb-3">
+          Daftar Pos Finansial
+        </Text>
 
-        <View style={styles.walletsList}>
+        <View className="gap-2.5">
           {wallets.length === 0 ? (
-            <View style={styles.emptyContainer}>
+            <View className="p-8 items-center justify-center bg-surface rounded-2xl border border-border">
               <WalletIcon size={32} color="#71717A" />
-              <Text style={styles.emptyTitle}>Belum Ada Kantong</Text>
-              <Text style={styles.emptySubtitle}>
+              <Text className="font-manrope-bold text-base text-zinc-100 mt-3 mb-1">
+                Belum Ada Kantong
+              </Text>
+              <Text className="font-manrope text-xs text-zinc-400 text-center leading-4">
                 Klik tombol "Tambah Kantong" untuk mulai mengalokasikan pos dana Anda.
               </Text>
             </View>
@@ -156,20 +168,19 @@ export function WalletsScreen({
               return (
                 <TouchableOpacity
                   key={wallet.id}
-                  style={styles.walletCard}
+                  className="p-4 rounded-2xl bg-surface border border-border"
                   onPress={() => selectWalletForDetail(wallet)}
                   activeOpacity={0.7}
                 >
-                  <View style={styles.walletCardTop}>
+                  <View className="flex-row items-center mb-3">
                     <View
-                      style={[
-                        styles.iconCircle,
+                      className={`w-11 h-11 rounded-xl items-center justify-center border mr-3.5 ${
                         isSavings
-                          ? styles.savingsIconCircle
+                          ? 'bg-gold/10 border-gold/25'
                           : isBank
-                          ? styles.bankIconCircle
-                          : styles.cashIconCircle,
-                      ]}
+                          ? 'bg-blue-500/10 border-blue-500/25'
+                          : 'bg-emerald-500/10 border-emerald-500/25'
+                      }`}
                     >
                       {isSavings ? (
                         <PiggyBank size={20} color="#FFD165" strokeWidth={2.2} />
@@ -180,37 +191,35 @@ export function WalletsScreen({
                       )}
                     </View>
 
-                    <View style={styles.walletDetails}>
-                      <View style={styles.nameBadgeRow}>
-                        <Text style={styles.walletName} numberOfLines={1}>
+                    <View className="flex-1 justify-center">
+                      <View className="flex-row items-center gap-2 mb-1">
+                        <Text className="font-manrope-bold text-base text-zinc-100 flex-1" numberOfLines={1}>
                           {wallet.name}
                         </Text>
                         <View
-                          style={[
-                            styles.typeBadge,
+                          className={`px-2 py-0.5 rounded-full border ${
                             isSavings
-                              ? styles.savingsBadge
+                              ? 'bg-gold/10 border-gold/25'
                               : isBank
-                              ? styles.bankBadge
-                              : styles.cashBadge,
-                          ]}
+                              ? 'bg-blue-500/10 border-blue-500/25'
+                              : 'bg-emerald-500/10 border-emerald-500/25'
+                          }`}
                         >
                           <Text
-                            style={[
-                              styles.typeBadgeText,
+                            className={`font-mono text-[10px] uppercase font-semibold ${
                               isSavings
-                                ? styles.savingsBadgeText
+                                ? 'text-gold-primary'
                                 : isBank
-                                ? styles.bankBadgeText
-                                : styles.cashBadgeText,
-                            ]}
+                                ? 'text-blue-400'
+                                : 'text-emerald-400'
+                            }`}
                           >
                             {isSavings ? 'Tabungan' : isBank ? 'Bank' : 'Cash'}
                           </Text>
                         </View>
                       </View>
 
-                      <Text style={styles.walletBalance}>
+                      <Text className="font-grotesk-bold text-lg text-zinc-100">
                         {formatRupiah(wallet.balance)}
                       </Text>
                     </View>
@@ -219,23 +228,23 @@ export function WalletsScreen({
                   </View>
 
                   {/* Allocation Progress Bar */}
-                  <View style={styles.progressRow}>
-                    <View style={styles.progressBarTrack}>
+                  <View className="flex-row items-center gap-3">
+                    <View className="flex-1 h-1.5 rounded-full bg-border overflow-hidden">
                       <View
-                        style={[
-                          styles.progressBarFill,
-                          {
-                            width: `${Math.min(100, Math.max(2, wallet.percentage))}%`,
-                            backgroundColor: isSavings
-                              ? '#FFD165'
-                              : isBank
-                              ? '#3B82F6'
-                              : '#10B981',
-                          },
-                        ]}
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${Math.min(100, Math.max(2, wallet.percentage))}%`,
+                          backgroundColor: isSavings
+                            ? '#FFD165'
+                            : isBank
+                            ? '#3B82F6'
+                            : '#10B981',
+                        }}
                       />
                     </View>
-                    <Text style={styles.percentageText}>{wallet.percentage}%</Text>
+                    <Text className="font-mono text-xs text-zinc-400 w-9 text-right">
+                      {wallet.percentage}%
+                    </Text>
                   </View>
                 </TouchableOpacity>
               );
@@ -258,269 +267,3 @@ export function WalletsScreen({
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#09090B',
-  },
-  contentContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: Platform.OS === 'ios' ? 88 : 80,
-    gap: 16,
-  },
-  heroCard: {
-    borderRadius: 20,
-    backgroundColor: '#1C1C20',
-    borderWidth: 1,
-    borderColor: 'rgba(234, 179, 8, 0.28)',
-    padding: 20,
-    position: 'relative',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 14,
-    elevation: 6,
-  },
-  goldenBloom: {
-    position: 'absolute',
-    top: -40,
-    right: -30,
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    backgroundColor: 'rgba(234, 179, 8, 0.08)',
-  },
-  heroHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  heroSubtitle: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    color: '#D3C5AC',
-  },
-  countBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    backgroundColor: 'rgba(234, 179, 8, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(234, 179, 8, 0.3)',
-  },
-  countBadgeText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    color: '#FFD165',
-    fontWeight: '600',
-  },
-  heroBalance: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 32,
-    color: '#F4F4F5',
-    letterSpacing: -0.5,
-    marginVertical: 4,
-  },
-  heroNote: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 12,
-    color: '#A1A1AA',
-    lineHeight: 16,
-    marginTop: 6,
-  },
-  actionButtonsRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  transferButton: {
-    flex: 1,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: '#EAB308',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    shadowColor: '#EAB308',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  transferButtonText: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 13,
-    color: '#09090B',
-    letterSpacing: 0.2,
-  },
-  addWalletButton: {
-    flex: 1,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  addWalletButtonText: {
-    fontFamily: 'SpaceGrotesk_600SemiBold',
-    fontSize: 13,
-    color: '#F4F4F5',
-    letterSpacing: 0.2,
-  },
-  listSection: {
-    marginTop: 4,
-  },
-  sectionTitle: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 16,
-    color: '#F4F4F5',
-    marginBottom: 12,
-  },
-  walletsList: {
-    gap: 12,
-  },
-  walletCard: {
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.3)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  walletCardTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0E0E11',
-    borderWidth: 1,
-    marginRight: 14,
-  },
-  cashIconCircle: {
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-  },
-  savingsIconCircle: {
-    borderColor: 'rgba(234, 179, 8, 0.35)',
-  },
-  bankIconCircle: {
-    borderColor: 'rgba(59, 130, 246, 0.3)',
-  },
-  walletDetails: {
-    flex: 1,
-  },
-  nameBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
-  },
-  walletName: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 14,
-    color: '#F4F4F5',
-  },
-  typeBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  cashBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    borderColor: 'rgba(16, 185, 129, 0.25)',
-  },
-  savingsBadge: {
-    backgroundColor: 'rgba(234, 179, 8, 0.1)',
-    borderColor: 'rgba(234, 179, 8, 0.3)',
-  },
-  bankBadge: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderColor: 'rgba(59, 130, 246, 0.25)',
-  },
-  typeBadgeText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 9,
-    textTransform: 'uppercase',
-  },
-  cashBadgeText: {
-    color: '#10B981',
-  },
-  savingsBadgeText: {
-    color: '#FFD165',
-  },
-  bankBadgeText: {
-    color: '#3B82F6',
-  },
-  walletBalance: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 18,
-    color: '#F4F4F5',
-  },
-  progressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginTop: 14,
-  },
-  progressBarTrack: {
-    flex: 1,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: '#27272A',
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 2.5,
-  },
-  percentageText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    color: '#A1A1AA',
-    width: 34,
-    textAlign: 'right',
-  },
-  emptyContainer: {
-    padding: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#18181B',
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: '#27272A',
-  },
-  emptyTitle: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 16,
-    color: '#F4F4F5',
-    marginTop: 12,
-    marginBottom: 4,
-  },
-  emptySubtitle: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 13,
-    color: '#71717A',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-});
-

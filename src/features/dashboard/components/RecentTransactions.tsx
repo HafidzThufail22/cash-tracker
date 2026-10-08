@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import {
   History,
   ChevronRight,
@@ -52,28 +52,37 @@ export function RecentTransactions({
   onTransactionPress,
 }: RecentTransactionsProps) {
   return (
-    <View style={styles.container}>
+    <View className="mt-1.5">
       {/* Section Header */}
-      <View style={styles.sectionHeader}>
-        <View style={styles.titleRow}>
+      <View className="flex-row items-center justify-between px-0.5 mb-2.5">
+        <View className="flex-row items-center gap-2">
           <History size={18} color="#FFD165" strokeWidth={2.2} />
-          <Text style={styles.titleText}>Recent Activity</Text>
+          <Text className="font-manrope-bold text-base text-zinc-100 tracking-tight">Recent Activity</Text>
         </View>
         <TouchableOpacity
-          style={styles.viewHistoryButton}
+          className="flex-row items-center gap-0.5"
           onPress={onViewAllPress}
           activeOpacity={0.7}
         >
-          <Text style={styles.viewHistoryText}>View History</Text>
+          <Text className="font-mono text-[11px] text-gold-primary uppercase tracking-wider">View History</Text>
           <ChevronRight size={14} color="#FFD165" />
         </TouchableOpacity>
       </View>
 
       {/* Ledger Card Container */}
-      <View style={styles.ledgerCard}>
+      <View
+        className="rounded-[20px] bg-surface border border-gold/30 overflow-hidden"
+        style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 10,
+          elevation: 4,
+        }}
+      >
         {transactions.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Belum ada riwayat transaksi</Text>
+          <View className="p-8 items-center justify-center">
+            <Text className="font-manrope text-sm text-zinc-500">Belum ada riwayat transaksi</Text>
           </View>
         ) : (
           transactions.map((item, index) => {
@@ -91,56 +100,54 @@ export function RecentTransactions({
             return (
               <TouchableOpacity
                 key={item.id}
-                style={[styles.itemRow, !isLast && styles.itemBorderBottom]}
+                className={`flex-row items-center p-3.5 ${!isLast ? 'border-b border-border/60' : ''}`}
                 onPress={() => onTransactionPress?.(item)}
                 activeOpacity={0.7}
               >
                 {/* Left: Icon Container */}
                 <View
-                  style={[
-                    styles.iconBox,
+                  className={`w-10 h-10 rounded-xl items-center justify-center bg-surface-lowest border mr-3 ${
                     isIncome
-                      ? styles.incomeIconBox
+                      ? 'border-emerald-500/25'
                       : isTransfer
-                      ? styles.transferIconBox
-                      : styles.expenseIconBox,
-                  ]}
+                      ? 'border-yellow-500/30'
+                      : 'border-red-500/25'
+                  }`}
                 >
                   {getCategoryIcon(item.categoryName, item.type)}
                 </View>
 
                 {/* Center: Title & Subtitle */}
-                <View style={styles.centerDetails}>
-                  <Text style={styles.itemTitle} numberOfLines={1}>
+                <View className="flex-1 justify-center">
+                  <Text className="font-manrope-semibold text-sm text-zinc-100 mb-0.5" numberOfLines={1}>
                     {item.notes || item.categoryName}
                   </Text>
-                  <View style={styles.metaRow}>
-                    <Text style={styles.categoryName} numberOfLines={1}>
+                  <View className="flex-row items-center gap-1.5">
+                    <Text className="font-mono text-[10px] uppercase tracking-wide text-[#9B8F79]" numberOfLines={1}>
                       {item.categoryName}
                     </Text>
-                    <View style={styles.dotDivider} />
-                    <Text style={styles.dateText}>
+                    <View className="w-[3px] h-[3px] rounded-full bg-zinc-700" />
+                    <Text className="font-mono text-[10px] text-zinc-500">
                       {formatTransactionDate(item.date)}
                     </Text>
                   </View>
                 </View>
 
                 {/* Right: Amount & Wallet */}
-                <View style={styles.rightDetails}>
+                <View className="items-end ml-2">
                   <Text
-                    style={[
-                      styles.amountText,
+                    className={`font-mono text-[13px] tracking-tight mb-0.5 font-semibold ${
                       isIncome
-                        ? styles.incomeAmount
+                        ? 'text-semantic-income'
                         : isTransfer
-                        ? styles.transferAmount
-                        : styles.expenseAmount,
-                    ]}
+                        ? 'text-gold-primary'
+                        : 'text-semantic-expense'
+                    }`}
                     numberOfLines={1}
                   >
                     {signedText}
                   </Text>
-                  <Text style={styles.walletName} numberOfLines={1}>
+                  <Text className="font-mono text-[10px] uppercase tracking-wide text-zinc-500" numberOfLines={1}>
                     {item.walletName}
                   </Text>
                 </View>
@@ -152,150 +159,3 @@ export function RecentTransactions({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 6,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 2,
-    marginBottom: 10,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  titleText: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 16,
-    color: '#F4F4F5',
-    letterSpacing: -0.2,
-  },
-  viewHistoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  viewHistoryText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    color: '#FFD165',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
-  ledgerCard: {
-    borderRadius: 20,
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.3)',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  emptyContainer: {
-    padding: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 14,
-    color: '#71717A',
-  },
-  itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-  },
-  itemBorderBottom: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(39, 39, 42, 0.6)',
-  },
-  iconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0E0E11',
-    borderWidth: 1,
-    marginRight: 12,
-  },
-  incomeIconBox: {
-    borderColor: 'rgba(16, 185, 129, 0.25)',
-  },
-  expenseIconBox: {
-    borderColor: 'rgba(239, 68, 68, 0.25)',
-  },
-  transferIconBox: {
-    borderColor: 'rgba(234, 179, 8, 0.3)',
-  },
-  centerDetails: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  itemTitle: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 14,
-    color: '#F4F4F5',
-    marginBottom: 3,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  categoryName: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    color: '#9B8F79',
-  },
-  dotDivider: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: '#3F3F46',
-  },
-  dateText: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 10,
-    color: '#71717A',
-  },
-  rightDetails: {
-    alignItems: 'flex-end',
-    marginLeft: 8,
-  },
-  amountText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 13,
-    letterSpacing: -0.2,
-    marginBottom: 2,
-    fontWeight: '600',
-  },
-  incomeAmount: {
-    color: '#10B981',
-  },
-  expenseAmount: {
-    color: '#EF4444',
-  },
-  transferAmount: {
-    color: '#FFD165',
-  },
-  walletName: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    color: '#71717A',
-  },
-});
-

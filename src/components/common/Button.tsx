@@ -3,7 +3,6 @@ import {
   TouchableOpacity,
   Text,
   ActivityIndicator,
-  StyleSheet,
   ViewStyle,
   TextStyle,
 } from 'react-native';
@@ -33,16 +32,27 @@ export function Button({
   const isOutline = variant === 'outline';
   const isDanger = variant === 'danger';
 
+  let variantButtonClass = 'bg-gold active:bg-gold-hover shadow-lg shadow-gold/30';
+  let variantTextClass = 'text-background font-bold';
+
+  if (isOutline) {
+    variantButtonClass = 'bg-transparent border border-border';
+    variantTextClass = 'text-zinc-100';
+  } else if (isDanger) {
+    variantButtonClass = 'bg-red-500/15 border border-red-500/30';
+    variantTextClass = 'text-semantic-expense';
+  } else if (variant === 'secondary') {
+    variantButtonClass = 'bg-surface border border-border';
+    variantTextClass = 'text-zinc-100';
+  }
+
+  const disabledClass = disabled || loading ? 'opacity-50' : '';
+  const disabledTextClass = disabled || loading ? 'text-zinc-500' : '';
+
   return (
     <TouchableOpacity
-      style={[
-        styles.buttonBase,
-        isPrimary && styles.primaryButton,
-        isOutline && styles.outlineButton,
-        isDanger && styles.dangerButton,
-        (disabled || loading) && styles.disabledButton,
-        style,
-      ]}
+      className={`h-12 rounded-xl flex-row items-center justify-center px-4.5 ${variantButtonClass} ${disabledClass}`}
+      style={style}
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.8}
@@ -56,15 +66,8 @@ export function Button({
         <>
           {icon}
           <Text
-            style={[
-              styles.textBase,
-              isPrimary && styles.primaryText,
-              isOutline && styles.outlineText,
-              isDanger && styles.dangerText,
-              (disabled || loading) && styles.disabledText,
-              Boolean(icon) && styles.textWithIcon,
-              textStyle,
-            ]}
+            className={`font-grotesk text-sm tracking-wide ${variantTextClass} ${disabledTextClass} ${icon ? 'ml-2' : ''}`}
+            style={textStyle}
           >
             {title}
           </Text>
@@ -73,57 +76,3 @@ export function Button({
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  buttonBase: {
-    height: 48,
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 18,
-  },
-  primaryButton: {
-    backgroundColor: '#EAB308',
-    shadowColor: '#EAB308',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  outlineButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#27272A',
-  },
-  dangerButton: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  textBase: {
-    fontFamily: 'SpaceGrotesk_600SemiBold',
-    fontSize: 14,
-    letterSpacing: 0.2,
-  },
-  primaryText: {
-    color: '#09090B',
-    fontWeight: '700',
-  },
-  outlineText: {
-    color: '#F4F4F5',
-  },
-  dangerText: {
-    color: '#EF4444',
-  },
-  disabledText: {
-    color: '#71717A',
-  },
-  textWithIcon: {
-    marginLeft: 8,
-  },
-});
-

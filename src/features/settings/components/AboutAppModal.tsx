@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { ShieldCheck, HardDrive, Cpu, Wallet, ReceiptText } from 'lucide-react-native';
 import { ModalLayout } from '../../../layouts/ModalLayout';
 import { db } from '../../../database/db';
@@ -54,75 +54,83 @@ export function AboutAppModal({ visible, onClose }: AboutAppModalProps) {
       subtitle="Informasi & Privasi Sistem"
       scrollable
     >
-      <View style={styles.container}>
+      <View className="gap-4.5 pb-2">
         {/* App Banner */}
-        <View style={styles.bannerCard}>
-          <Text style={styles.brandTitle}>CASH TRACKER</Text>
-          <Text style={styles.versionBadge}>Versi 1.0.0 • SQLite Engine</Text>
-          <Text style={styles.brandDescription}>
+        <View className="bg-[#111113] border border-border rounded-[14px] p-4 items-center gap-1.5">
+          <Text className="font-grotesk-bold text-xl tracking-[2px] text-gold-primary">
+            CASH TRACKER
+          </Text>
+          <Text className="font-mono text-[11px] text-zinc-400">
+            Versi 1.0.0 • SQLite Engine
+          </Text>
+          <Text className="font-manrope text-xs leading-[18px] text-zinc-500 text-center mt-1">
             Aplikasi pencatatan keuangan pribadi dengan prinsip 100% penyimpanan lokal dan
             desain hemat daya OLED Dark Luxury.
           </Text>
         </View>
 
         {/* Real Data Metrics */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>STATUS PENYIMPANAN AKTIF</Text>
+        <View className="gap-2">
+          <Text className="font-mono text-[10px] uppercase tracking-widest text-zinc-500 ml-0.5">
+            STATUS PENYIMPANAN AKTIF
+          </Text>
           {loading ? (
             <ActivityIndicator size="small" color="#FFD165" />
           ) : (
-            <View style={styles.statsGrid}>
-              <View style={styles.statBox}>
+            <View className="flex-row gap-2.5">
+              <View className="flex-1 bg-surface border border-border rounded-xl p-3.5 items-center gap-1.5">
                 <Wallet size={16} color="#FFD165" />
-                <Text style={styles.statValue}>{stats?.walletCount || 0}</Text>
-                <Text style={styles.statLabel}>Kantong Kas</Text>
+                <Text className="font-grotesk-bold text-[22px] text-zinc-100">{stats?.walletCount || 0}</Text>
+                <Text className="font-manrope-medium text-xs text-zinc-400">Kantong Kas</Text>
               </View>
-              <View style={styles.statBox}>
+              <View className="flex-1 bg-surface border border-border rounded-xl p-3.5 items-center gap-1.5">
                 <ReceiptText size={16} color="#10B981" />
-                <Text style={styles.statValue}>{stats?.txCount || 0}</Text>
-                <Text style={styles.statLabel}>Total Mutasi</Text>
+                <Text className="font-grotesk-bold text-[22px] text-zinc-100">{stats?.txCount || 0}</Text>
+                <Text className="font-manrope-medium text-xs text-zinc-400">Total Mutasi</Text>
               </View>
             </View>
           )}
         </View>
 
         {/* Architecture & Privacy Highlights */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>SPESIFIKASI ARSITEKTUR</Text>
-          <View style={styles.featureList}>
-            <View style={styles.featureItem}>
-              <View style={styles.featureIcon}>
+        <View className="gap-2">
+          <Text className="font-mono text-[10px] uppercase tracking-widest text-zinc-500 ml-0.5">
+            SPESIFIKASI ARSITEKTUR
+          </Text>
+          <View className="gap-2.5">
+            <View className="flex-row items-start bg-surface border border-border rounded-xl p-3 gap-3">
+              <View className="w-8 h-8 rounded-full bg-border items-center justify-center mt-0.5">
                 <ShieldCheck size={18} color="#10B981" />
               </View>
-              <View style={styles.featureTextContainer}>
-                <Text style={styles.featureHeading}>Privasi 100% Terjaga</Text>
-                <Text style={styles.featureDesc}>
+              <View className="flex-1">
+                <Text className="font-manrope-semibold text-[13px] text-zinc-100 mb-0.5">Privasi 100% Terjaga</Text>
+                <Text className="font-manrope text-xs leading-[17px] text-zinc-400">
                   Data tersimpan sepenuhnya di perangkat lokal Anda tanpa sinkronisasi cloud atau
                   pelacakan pihak ketiga.
                 </Text>
               </View>
             </View>
 
-            <View style={styles.featureItem}>
-              <View style={styles.featureIcon}>
+            <View className="flex-row items-start bg-surface border border-border rounded-xl p-3 gap-3">
+              <View className="w-8 h-8 rounded-full bg-border items-center justify-center mt-0.5">
                 <HardDrive size={18} color="#FFD165" />
               </View>
-              <View style={styles.featureTextContainer}>
-                <Text style={styles.featureHeading}>Offline-First SQLite</Text>
-                <Text style={styles.featureDesc}>
+              <View className="flex-1">
+                <Text className="font-manrope-semibold text-[13px] text-zinc-100 mb-0.5">Offline-First SQLite</Text>
+                <Text className="font-manrope text-xs leading-[17px] text-zinc-400">
                   Ditenagai oleh expo-sqlite & Drizzle ORM untuk transaksi atomik instan tanpa
                   bergantung pada koneksi internet.
                 </Text>
               </View>
             </View>
 
-            <View style={styles.featureItem}>
-              <View style={styles.featureIcon}>
+            <View className="flex-row items-start bg-surface border border-border rounded-xl p-3 gap-3">
+              <View className="w-8 h-8 rounded-full bg-border items-center justify-center mt-0.5">
                 <Cpu size={18} color="#A1A1AA" />
               </View>
-              <View style={styles.featureTextContainer}>
-                <Text style={styles.featureHeading}>Desain Hemat Daya OLED</Text>
-                <Text style={styles.featureDesc}>
+              <View className="flex-1">
+                <Text className="font-manrope-semibold text-[13px] text-zinc-100 mb-0.5">Desain Hemat Daya OLED</Text>
+                <Text className="font-manrope text-xs leading-[17px] text-zinc-400">
                   Dominasi palet warna True OLED Black (#09090B) memaksimalkan efisiensi baterai
                   layar AMOLED/OLED.
                 </Text>
@@ -134,110 +142,3 @@ export function AboutAppModal({ visible, onClose }: AboutAppModalProps) {
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: 18,
-    paddingBottom: 8,
-  },
-  bannerCard: {
-    backgroundColor: '#111113',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    borderRadius: 14,
-    padding: 16,
-    alignItems: 'center',
-    gap: 6,
-  },
-  brandTitle: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 20,
-    letterSpacing: 2,
-    color: '#FFD165',
-  },
-  versionBadge: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    color: '#A1A1AA',
-  },
-  brandDescription: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 12,
-    lineHeight: 18,
-    color: '#71717A',
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  section: {
-    gap: 8,
-  },
-  sectionTitle: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    color: '#71717A',
-    marginLeft: 2,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  statBox: {
-    flex: 1,
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    borderRadius: 12,
-    padding: 14,
-    alignItems: 'center',
-    gap: 6,
-  },
-  statValue: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 22,
-    color: '#F4F4F5',
-  },
-  statLabel: {
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 12,
-    color: '#A1A1AA',
-  },
-  featureList: {
-    gap: 10,
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    borderRadius: 12,
-    padding: 12,
-    gap: 12,
-  },
-  featureIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  featureTextContainer: {
-    flex: 1,
-  },
-  featureHeading: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 13,
-    color: '#F4F4F5',
-    marginBottom: 2,
-  },
-  featureDesc: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 12,
-    lineHeight: 17,
-    color: '#A1A1AA',
-  },
-});

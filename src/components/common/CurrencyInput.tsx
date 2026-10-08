@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   ViewStyle,
 } from 'react-native';
 import { X } from 'lucide-react-native';
@@ -36,7 +35,6 @@ export function CurrencyInput({
   };
 
   const handleChangeText = (text: string) => {
-    // Hanya ambil karakter angka murni
     const cleanNumbers = text.replace(/[^0-9]/g, '');
     const numericValue = cleanNumbers ? parseInt(cleanNumbers, 10) : 0;
     onChangeValue(numericValue);
@@ -49,20 +47,26 @@ export function CurrencyInput({
   const displayString = formatRawToDisplay(value);
 
   return (
-    <View style={[styles.container, style]}>
-      {label && <Text style={styles.label}>{label}</Text>}
+    <View className="w-full mb-3.5" style={style}>
+      {label && (
+        <Text className="font-mono text-[11px] uppercase tracking-wider text-[#D3C5AC] mb-1.5">
+          {label}
+        </Text>
+      )}
 
       <View
-        style={[
-          styles.inputContainer,
-          isFocused && styles.inputFocused,
-          Boolean(error) && styles.inputError,
-        ]}
+        className={`flex-row items-center h-[52px] rounded-xl bg-surface-lowest border px-3.5 ${
+          error
+            ? 'border-semantic-expense'
+            : isFocused
+              ? 'border-gold bg-surface-dark shadow-sm shadow-gold/20'
+              : 'border-border'
+        }`}
       >
-        <Text style={styles.prefixText}>Rp</Text>
+        <Text className="font-grotesk text-lg text-gold-primary mr-2">Rp</Text>
 
         <TextInput
-          style={styles.textInput}
+          className="flex-1 font-grotesk-bold text-xl text-zinc-100 p-0"
           value={displayString}
           onChangeText={handleChangeText}
           keyboardType="number-pad"
@@ -74,7 +78,7 @@ export function CurrencyInput({
 
         {value > 0 && (
           <TouchableOpacity
-            style={styles.clearButton}
+            className="w-6 h-6 rounded-full bg-[#1F1F22] items-center justify-center ml-1.5"
             onPress={handleClear}
             activeOpacity={0.7}
           >
@@ -84,82 +88,10 @@ export function CurrencyInput({
       </View>
 
       {error ? (
-        <Text style={styles.errorText}>{error}</Text>
+        <Text className="font-manrope text-[11px] text-semantic-expense mt-1">{error}</Text>
       ) : helperText ? (
-        <Text style={styles.helperText}>{helperText}</Text>
+        <Text className="font-manrope text-[11px] text-zinc-500 mt-1">{helperText}</Text>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    marginBottom: 14,
-  },
-  label: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    color: '#D3C5AC',
-    marginBottom: 6,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 52,
-    borderRadius: 12,
-    backgroundColor: '#0E0E11',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    paddingHorizontal: 14,
-  },
-  inputFocused: {
-    borderColor: '#EAB308',
-    backgroundColor: '#131316',
-    shadowColor: '#EAB308',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  inputError: {
-    borderColor: '#EF4444',
-  },
-  prefixText: {
-    fontFamily: 'SpaceGrotesk_600SemiBold',
-    fontSize: 18,
-    color: '#FFD165',
-    marginRight: 8,
-  },
-  textInput: {
-    flex: 1,
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 20,
-    color: '#F4F4F5',
-    padding: 0,
-  },
-  clearButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#1F1F22',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 6,
-  },
-  errorText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 11,
-    color: '#EF4444',
-    marginTop: 4,
-  },
-  helperText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 11,
-    color: '#71717A',
-    marginTop: 4,
-  },
-});
-

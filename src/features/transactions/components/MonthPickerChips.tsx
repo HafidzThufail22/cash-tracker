@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Calendar } from 'lucide-react-native';
 import { AvailableMonth } from '../../../database/repositories/transactionRepo';
 
@@ -19,10 +19,10 @@ export function MonthPickerChips({
   onOpenCalendarModal,
 }: MonthPickerChipsProps) {
   return (
-    <View style={styles.container}>
+    <View className="my-0.5 flex-row items-center gap-2">
       {onOpenCalendarModal && (
         <TouchableOpacity
-          style={styles.calendarTriggerBtn}
+          className="w-[38px] h-[38px] rounded-full bg-surface border border-border items-center justify-center"
           onPress={onOpenCalendarModal}
           activeOpacity={0.7}
           accessibilityLabel="Pilih bulan dan tahun"
@@ -35,7 +35,7 @@ export function MonthPickerChips({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={{ gap: 8, alignItems: 'center', paddingRight: 8 }}
       >
         {months.map((item) => {
           const isSelected = item.year === selectedYear && item.month === selectedMonth;
@@ -43,15 +43,18 @@ export function MonthPickerChips({
           return (
             <TouchableOpacity
               key={item.key}
-              style={[styles.chip, isSelected ? styles.chipSelected : styles.chipUnselected]}
+              className={`flex-row items-center px-3.5 py-2 rounded-full border ${
+                isSelected
+                  ? 'bg-gold border-gold shadow-sm shadow-gold/30'
+                  : 'bg-surface border-border'
+              }`}
               onPress={() => onSelectMonth(item.year, item.month)}
               activeOpacity={0.75}
             >
               <Text
-                style={[
-                  styles.chipText,
-                  isSelected ? styles.chipTextSelected : styles.chipTextUnselected,
-                ]}
+                className={`font-mono text-[11px] tracking-wide ${
+                  isSelected ? 'text-background font-bold' : 'text-zinc-400'
+                }`}
               >
                 {item.label}
               </Text>
@@ -62,60 +65,3 @@ export function MonthPickerChips({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  calendarTriggerBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scrollContent: {
-    gap: 8,
-    alignItems: 'center',
-    paddingRight: 8,
-  },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 13,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  chipSelected: {
-    backgroundColor: '#EAB308',
-    borderColor: '#EAB308',
-    shadowColor: '#EAB308',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  chipUnselected: {
-    backgroundColor: '#18181B',
-    borderColor: '#27272A',
-  },
-  chipText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    letterSpacing: 0.3,
-  },
-  chipTextSelected: {
-    color: '#09090B',
-    fontWeight: '700',
-  },
-  chipTextUnselected: {
-    color: '#A1A1AA',
-  },
-});

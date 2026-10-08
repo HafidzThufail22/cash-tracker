@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { ArrowDown, Check, ArrowRightLeft } from 'lucide-react-native';
 import { ModalLayout } from '../../../layouts/ModalLayout';
 import { CurrencyInput } from '../../../components/common/CurrencyInput';
@@ -34,7 +34,6 @@ export function TransferModal({ visible, onClose, wallets }: TransferModalProps)
     executeTransfer,
   } = useWalletTransfer();
 
-  // Set default from and to wallets saat modal dibuka
   useEffect(() => {
     if (visible && wallets.length >= 2) {
       if (!fromWalletId) {
@@ -67,56 +66,59 @@ export function TransferModal({ visible, onClose, wallets }: TransferModalProps)
       title="Pindah Saldo"
       subtitle="Transfer Antar-Kantong"
     >
-      <View style={styles.container}>
+      <View className="pb-2.5">
         {/* Selektor Kantong Asal */}
-        <Text style={styles.sectionLabel}>Dari Kantong (Sumber)</Text>
+        <Text className="font-mono text-[11px] uppercase tracking-wider text-[#D3C5AC] mb-2">
+          Dari Kantong (Sumber)
+        </Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.walletsSelectorContent}
+          contentContainerStyle={{ gap: 8, paddingBottom: 4 }}
         >
           {wallets.map((w) => {
             const isSelected = fromWalletId === w.id;
             return (
               <TouchableOpacity
                 key={w.id}
-                style={[
-                  styles.walletPill,
-                  isSelected && styles.selectedWalletPill,
-                ]}
+                className={`w-[140px] p-3 rounded-xl bg-[#1F1F22] border ${
+                  isSelected ? 'border-gold bg-gold/10' : 'border-border'
+                }`}
                 onPress={() => {
                   setFromWalletId(w.id);
                   setError(null);
                 }}
                 activeOpacity={0.7}
               >
-                <View style={styles.pillHeader}>
-                  <Text style={[styles.pillName, isSelected && styles.selectedPillText]}>
+                <View className="flex-row items-center justify-between mb-1">
+                  <Text className={`font-manrope-semibold text-xs ${isSelected ? 'text-gold-primary' : 'text-zinc-100'}`}>
                     {w.name}
                   </Text>
                   {isSelected && <Check size={14} color="#FFD165" strokeWidth={3} />}
                 </View>
-                <Text style={styles.pillBalance}>{formatRupiah(w.balance)}</Text>
+                <Text className="font-grotesk text-[13px] text-zinc-400">{formatRupiah(w.balance)}</Text>
               </TouchableOpacity>
             );
           })}
         </ScrollView>
 
         {/* Direction Indicator */}
-        <View style={styles.directionIndicatorRow}>
-          <View style={styles.directionLine} />
-          <View style={styles.directionIconCircle}>
+        <View className="flex-row items-center my-3">
+          <View className="flex-1 h-[1px] bg-border/80" />
+          <View className="w-7 h-7 rounded-full bg-surface border border-gold/40 items-center justify-center mx-3">
             <ArrowDown size={14} color="#FFD165" strokeWidth={2.5} />
           </View>
-          <View style={styles.directionLine} />
+          <View className="flex-1 h-[1px] bg-border/80" />
         </View>
 
         {/* Selektor Kantong Tujuan */}
-        <Text style={styles.sectionLabel}>Ke Kantong (Tujuan)</Text>
+        <Text className="font-mono text-[11px] uppercase tracking-wider text-[#D3C5AC] mb-2">
+          Ke Kantong (Tujuan)
+        </Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.walletsSelectorContent}
+          contentContainerStyle={{ gap: 8, paddingBottom: 4 }}
         >
           {wallets.map((w) => {
             const isSelected = toWalletId === w.id;
@@ -125,34 +127,37 @@ export function TransferModal({ visible, onClose, wallets }: TransferModalProps)
               <TouchableOpacity
                 key={w.id}
                 disabled={isSameAsSource}
-                style={[
-                  styles.walletPill,
-                  isSelected && styles.selectedWalletPill,
-                  isSameAsSource && styles.disabledWalletPill,
-                ]}
+                className={`w-[140px] p-3 rounded-xl bg-[#1F1F22] border ${
+                  isSelected
+                    ? 'border-gold bg-gold/10'
+                    : isSameAsSource
+                    ? 'opacity-35 bg-[#131316] border-border'
+                    : 'border-border'
+                }`}
                 onPress={() => {
                   setToWalletId(w.id);
                   setError(null);
                 }}
                 activeOpacity={0.7}
               >
-                <View style={styles.pillHeader}>
+                <View className="flex-row items-center justify-between mb-1">
                   <Text
-                    style={[
-                      styles.pillName,
-                      isSelected && styles.selectedPillText,
-                      isSameAsSource && styles.disabledPillText,
-                    ]}
+                    className={`font-manrope-semibold text-xs ${
+                      isSelected
+                        ? 'text-gold-primary'
+                        : isSameAsSource
+                        ? 'text-zinc-600'
+                        : 'text-zinc-100'
+                    }`}
                   >
                     {w.name}
                   </Text>
                   {isSelected && <Check size={14} color="#FFD165" strokeWidth={3} />}
                 </View>
                 <Text
-                  style={[
-                    styles.pillBalance,
-                    isSameAsSource && styles.disabledPillText,
-                  ]}
+                  className={`font-grotesk text-[13px] ${
+                    isSameAsSource ? 'text-zinc-600' : 'text-zinc-400'
+                  }`}
                 >
                   {formatRupiah(w.balance)}
                 </Text>
@@ -174,18 +179,16 @@ export function TransferModal({ visible, onClose, wallets }: TransferModalProps)
               ? `Tersedia: ${formatRupiah(selectedSourceWallet.balance)}`
               : undefined
           }
-          style={styles.currencyInput}
         />
 
         {/* Quick Amount Chips */}
-        <View style={styles.quickChipsGrid}>
+        <View className="flex-row flex-wrap gap-2 mb-3.5">
           {QUICK_AMOUNTS.map((amt) => (
             <TouchableOpacity
               key={amt}
-              style={[
-                styles.quickChip,
-                amount === amt && styles.activeQuickChip,
-              ]}
+              className={`px-3 py-1.5 rounded-full bg-[#1F1F22] border ${
+                amount === amt ? 'border-gold bg-gold/15' : 'border-border'
+              }`}
               onPress={() => {
                 setAmount(amt);
                 setError(null);
@@ -193,10 +196,9 @@ export function TransferModal({ visible, onClose, wallets }: TransferModalProps)
               activeOpacity={0.7}
             >
               <Text
-                style={[
-                  styles.quickChipText,
-                  amount === amt && styles.activeQuickChipText,
-                ]}
+                className={`font-mono text-[11px] ${
+                  amount === amt ? 'text-gold-primary font-bold' : 'text-zinc-400'
+                }`}
               >
                 {formatRupiah(amt)}
               </Text>
@@ -214,8 +216,8 @@ export function TransferModal({ visible, onClose, wallets }: TransferModalProps)
 
         {/* Error Notification */}
         {error && (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{error}</Text>
+          <View className="p-2.5 rounded-xl bg-red-500/15 border border-red-500/30 mb-3.5">
+            <Text className="font-manrope-medium text-xs text-semantic-expense text-center">{error}</Text>
           </View>
         )}
 
@@ -225,135 +227,8 @@ export function TransferModal({ visible, onClose, wallets }: TransferModalProps)
           onPress={handleConfirm}
           loading={isSubmitting}
           icon={<ArrowRightLeft size={18} color="#09090B" strokeWidth={2.5} />}
-          style={styles.submitButton}
         />
       </View>
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 10,
-  },
-  sectionLabel: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    color: '#D3C5AC',
-    marginBottom: 8,
-  },
-  walletsSelectorContent: {
-    gap: 8,
-    paddingBottom: 4,
-  },
-  walletPill: {
-    width: 140,
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: '#1F1F22',
-    borderWidth: 1,
-    borderColor: '#27272A',
-  },
-  selectedWalletPill: {
-    borderColor: '#EAB308',
-    backgroundColor: 'rgba(234, 179, 8, 0.08)',
-  },
-  disabledWalletPill: {
-    opacity: 0.35,
-    backgroundColor: '#131316',
-  },
-  pillHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  pillName: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 12,
-    color: '#F4F4F5',
-  },
-  selectedPillText: {
-    color: '#FFD165',
-  },
-  disabledPillText: {
-    color: '#52525B',
-  },
-  pillBalance: {
-    fontFamily: 'SpaceGrotesk_600SemiBold',
-    fontSize: 13,
-    color: '#A1A1AA',
-  },
-  directionIndicatorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 12,
-  },
-  directionLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(39, 39, 42, 0.8)',
-  },
-  directionIconCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(234, 179, 8, 0.4)',
-  },
-  currencyInput: {
-    marginTop: 14,
-    marginBottom: 10,
-  },
-  quickChipsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 14,
-  },
-  quickChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 20,
-    backgroundColor: '#1F1F22',
-    borderWidth: 1,
-    borderColor: '#27272A',
-  },
-  activeQuickChip: {
-    borderColor: '#EAB308',
-    backgroundColor: 'rgba(234, 179, 8, 0.15)',
-  },
-  quickChipText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    color: '#A1A1AA',
-  },
-  activeQuickChipText: {
-    color: '#FFD165',
-    fontWeight: '700',
-  },
-  errorBox: {
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-    marginBottom: 14,
-  },
-  errorText: {
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 12,
-    color: '#EF4444',
-    textAlign: 'center',
-  },
-  submitButton: {
-    marginTop: 6,
-  },
-});
-

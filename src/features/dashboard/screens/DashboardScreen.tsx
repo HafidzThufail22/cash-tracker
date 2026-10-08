@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  StyleSheet,
   RefreshControl,
   Platform,
   Animated,
@@ -51,7 +50,6 @@ export function DashboardScreen({
     initDashboard,
   } = useDashboardSummary();
 
-  // Animasi halus saat filter bulan atau kantong kas berubah
   const contentFadeAnim = useRef(new Animated.Value(1)).current;
   const contentSlideAnim = useRef(new Animated.Value(0)).current;
   const isFirstLoad = useRef(true);
@@ -87,10 +85,15 @@ export function DashboardScreen({
   const selectedWallet = wallets.find((w) => w.id === selectedWalletId);
 
   return (
-    <View style={styles.screenRoot}>
+    <View className="flex-1 bg-background">
       <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer}
+        className="flex-1 bg-background"
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: 10,
+          paddingBottom: Platform.OS === 'ios' ? 88 : 80,
+          gap: 14,
+        }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -102,9 +105,9 @@ export function DashboardScreen({
         }
       >
         {/* Horizontal Month Filter Bar (Calendar Button + Scrollable Chips) */}
-        <View style={styles.filterRow}>
+        <View className="flex-row items-center gap-2 my-0.5">
           <TouchableOpacity
-            style={styles.calendarTriggerBtn}
+            className="w-[38px] h-[38px] rounded-full bg-surface border border-border items-center justify-center"
             onPress={() => setIsPeriodModalOpen(true)}
             activeOpacity={0.7}
             accessibilityLabel="Pilih bulan dan tahun"
@@ -116,7 +119,7 @@ export function DashboardScreen({
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.chipsScrollContent}
+            contentContainerStyle={{ gap: 8, alignItems: 'center', paddingRight: 8 }}
           >
             {availableMonths.map((item) => {
               const isSelected = item.year === selectedYear && item.month === selectedMonth;
@@ -124,18 +127,18 @@ export function DashboardScreen({
               return (
                 <TouchableOpacity
                   key={item.key}
-                  style={[
-                    styles.chip,
-                    isSelected ? styles.chipSelected : styles.chipUnselected,
-                  ]}
+                  className={`flex-row items-center px-3.5 py-2 rounded-full border ${
+                    isSelected
+                      ? 'bg-gold border-gold shadow-sm shadow-gold/30'
+                      : 'bg-surface border-border'
+                  }`}
                   onPress={() => setPeriod(item.year, item.month)}
                   activeOpacity={0.75}
                 >
                   <Text
-                    style={[
-                      styles.chipText,
-                      isSelected ? styles.chipTextSelected : styles.chipTextUnselected,
-                    ]}
+                    className={`font-mono text-[11px] tracking-wide ${
+                      isSelected ? 'text-background font-bold' : 'text-zinc-400'
+                    }`}
                   >
                     {item.label}
                   </Text>
@@ -145,14 +148,14 @@ export function DashboardScreen({
           </ScrollView>
         </View>
 
-        {/* Konten Dinamis Teranimasi Halus saat Filter Berganti */}
+        {/* Dynamic Content */}
         <Animated.View
           style={{
             opacity: contentFadeAnim,
             transform: [{ translateY: contentSlideAnim }],
           }}
         >
-          {/* Hero Net Balance Card (dengan Dropdown Filter Wallet di samping Icon Mata) */}
+          {/* Hero Net Balance Card */}
           <TotalBalanceCard
             totalBalance={totalNetBalance}
             monthlyIncome={monthlyIncome}
@@ -171,13 +174,15 @@ export function DashboardScreen({
           />
 
           {/* Micro-Insight Banner */}
-          <View style={styles.insightBanner}>
-            <View style={styles.insightIconCircle}>
+          <View className="flex-row items-center gap-3 p-3.5 rounded-[14px] bg-surface border border-border mt-3">
+            <View className="w-[34px] h-[34px] rounded-full bg-gold/15 items-center justify-center">
               <TrendingUp size={16} color="#FFD165" strokeWidth={2.5} />
             </View>
-            <View style={styles.insightTextContainer}>
-              <Text style={styles.insightTitle}>Ringkasan Pengeluaran</Text>
-              <Text style={styles.insightDesc}>
+            <View className="flex-1">
+              <Text className="font-mono text-[11px] uppercase tracking-wider text-gold-primary mb-0.5 font-bold">
+                Ringkasan Pengeluaran
+              </Text>
+              <Text className="font-manrope text-xs text-zinc-400 leading-4">
                 {monthlyExpense === 0
                   ? 'Belum ada catatan pengeluaran bulan ini. Keuangan tetap stabil!'
                   : `Total arus kas keluar terpantau pada periode ${formatPeriodLabel(selectedYear, selectedMonth)}.`}
@@ -187,7 +192,7 @@ export function DashboardScreen({
         </Animated.View>
       </ScrollView>
 
-      {/* Floating Action Button (Mepet Menu Bar Bawah) */}
+      {/* Floating Action Button */}
       <ActionFAB
         isOpen={isActionSheetOpen}
         onPress={() => setIsActionSheetOpen(true)}
@@ -200,7 +205,7 @@ export function DashboardScreen({
         onSuccess={refreshDashboard}
       />
 
-      {/* Period Picker Modal (Pilihan Bulan & Tahun) */}
+      {/* Period Picker Modal */}
       <PeriodPickerModal
         visible={isPeriodModalOpen}
         selectedYear={selectedYear}
@@ -210,7 +215,7 @@ export function DashboardScreen({
         onSelectMonth={setPeriod}
       />
 
-      {/* Wallet Picker Modal (Dropdown Filter Kantong) */}
+      {/* Wallet Picker Modal */}
       <WalletPickerModal
         visible={isWalletModalOpen}
         wallets={wallets}
@@ -221,110 +226,3 @@ export function DashboardScreen({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screenRoot: {
-    flex: 1,
-    backgroundColor: '#09090B',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#09090B',
-  },
-  contentContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: Platform.OS === 'ios' ? 88 : 80,
-    gap: 14,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginVertical: 2,
-  },
-  calendarTriggerBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  chipsScrollContent: {
-    gap: 8,
-    alignItems: 'center',
-    paddingRight: 8,
-  },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 13,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  chipSelected: {
-    backgroundColor: '#EAB308',
-    borderColor: '#EAB308',
-    shadowColor: '#EAB308',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  chipUnselected: {
-    backgroundColor: '#18181B',
-    borderColor: '#27272A',
-  },
-  chipText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    letterSpacing: 0.3,
-  },
-  chipTextSelected: {
-    color: '#09090B',
-    fontWeight: '700',
-  },
-  chipTextUnselected: {
-    color: '#A1A1AA',
-  },
-  insightBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 14,
-    borderRadius: 14,
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-  },
-  insightIconCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: 'rgba(234, 179, 8, 0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  insightTextContainer: {
-    flex: 1,
-  },
-  insightTitle: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    color: '#FFD165',
-    marginBottom: 2,
-    fontWeight: '700',
-  },
-  insightDesc: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 12,
-    color: '#A1A1AA',
-    lineHeight: 16,
-  },
-});

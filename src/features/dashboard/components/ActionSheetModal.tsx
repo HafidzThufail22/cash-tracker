@@ -5,7 +5,6 @@ import {
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  StyleSheet,
   Animated,
   ScrollView,
   Platform,
@@ -282,26 +281,38 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
     >
       {/* Backdrop */}
       <TouchableWithoutFeedback onPress={closeSheet}>
-        <Animated.View style={[styles.backdrop, { opacity: backdropAnim }]} />
+        <Animated.View className="absolute inset-0 bg-black/70" style={{ opacity: backdropAnim }} />
       </TouchableWithoutFeedback>
 
       {/* Sheet */}
       <Animated.View
+        className="absolute bottom-0 left-0 right-0 bg-surface rounded-t-[28px] border-t border-white/10 min-h-[300px] max-h-[90%]"
         style={[
-          styles.sheet,
+          {
+            paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -6 },
+            shadowOpacity: 0.4,
+            shadowRadius: 20,
+            elevation: 20,
+          },
           { transform: [{ translateY: slideAnim }] },
         ]}
       >
         {/* Drag Handle */}
-        <View style={styles.handleBar} />
+        <View className="w-10 h-1 rounded-full bg-zinc-700 self-center mt-3 mb-1" />
 
         {/* ── STEP 1: PICKER ── */}
         {step === 'picker' && (
-          <View style={styles.stepContainer}>
-            <Text style={styles.sheetTitle}>Mau ngapain?</Text>
-            <Text style={styles.sheetSubtitle}>Pilih jenis transaksi</Text>
+          <View className="px-5 pt-3">
+            <Text className="font-manrope-bold text-[22px] text-zinc-100 tracking-tight mb-1">
+              Mau ngapain?
+            </Text>
+            <Text className="font-manrope text-[13px] text-zinc-500 mb-5">
+              Pilih jenis transaksi
+            </Text>
 
-            <View style={styles.actionList}>
+            <View className="gap-2.5">
               {(['income', 'expense', 'transfer'] as ActionType[]).map((key, index) => {
                 const cfg = ACTION_CONFIG[key];
                 const cardScale = cardAnims[index].interpolate({
@@ -318,24 +329,25 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                     }}
                   >
                     <TouchableOpacity
-                      style={[
-                        styles.actionCard,
-                        {
-                          backgroundColor: cfg.bgColor,
-                          borderColor: cfg.borderColor,
-                        },
-                      ]}
+                      className="flex-row items-center p-4 rounded-2xl border gap-3"
+                      style={{
+                        backgroundColor: cfg.bgColor,
+                        borderColor: cfg.borderColor,
+                      }}
                       onPress={() => handleSelectAction(key)}
                       activeOpacity={0.75}
                     >
-                      <View style={[styles.actionIconCircle, { backgroundColor: cfg.bgColor, borderColor: cfg.borderColor }]}>
+                      <View
+                        className="w-[42px] h-[42px] rounded-full border items-center justify-center"
+                        style={{ backgroundColor: cfg.bgColor, borderColor: cfg.borderColor }}
+                      >
                         <cfg.Icon size={20} color={cfg.color} strokeWidth={2.2} />
                       </View>
-                      <View style={styles.actionTextGroup}>
-                        <Text style={[styles.actionCardLabel, { color: cfg.color }]}>
+                      <View className="flex-1">
+                        <Text className="font-manrope-bold text-[15px] tracking-tight" style={{ color: cfg.color }}>
                           {cfg.label}
                         </Text>
-                        <Text style={styles.actionCardSublabel}>{cfg.sublabel}</Text>
+                        <Text className="font-manrope text-xs text-zinc-500 mt-0.5">{cfg.sublabel}</Text>
                       </View>
                       <ChevronDown
                         size={16}
@@ -349,25 +361,25 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
               })}
             </View>
 
-            <TouchableOpacity style={styles.cancelButton} onPress={closeSheet} activeOpacity={0.7}>
-              <Text style={styles.cancelText}>Batal</Text>
+            <TouchableOpacity className="items-center py-4.5 mt-1" onPress={closeSheet} activeOpacity={0.7}>
+              <Text className="font-manrope-semibold text-sm text-zinc-500">Batal</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {/* ── STEP 2: FORM ── */}
         {step === 'form' && selectedAction && actionConfig && (
-          <View style={styles.stepContainer}>
+          <View className="px-5 pt-3">
             {/* Form Header */}
-            <View style={styles.formHeader}>
-              <TouchableOpacity onPress={handleBack} style={styles.backButton} activeOpacity={0.7}>
+            <View className="flex-row items-center justify-between mb-5">
+              <TouchableOpacity onPress={handleBack} className="w-8 h-8 rounded-full bg-[#27272A] items-center justify-center" activeOpacity={0.7}>
                 <ChevronLeft size={20} color="#A1A1AA" strokeWidth={2} />
               </TouchableOpacity>
-              <View style={styles.formTitleRow}>
-                <View style={[styles.formTitleIcon, { backgroundColor: actionConfig.bgColor }]}>
+              <View className="flex-row items-center gap-2">
+                <View className="w-7 h-7 rounded-full items-center justify-center" style={{ backgroundColor: actionConfig.bgColor }}>
                   <actionConfig.Icon size={16} color={actionConfig.color} strokeWidth={2.2} />
                 </View>
-                <Text style={styles.formTitle}>{actionConfig.label}</Text>
+                <Text className="font-manrope-bold text-base text-zinc-100 tracking-tight">{actionConfig.label}</Text>
               </View>
               <View style={{ width: 32 }} />
             </View>
@@ -375,7 +387,7 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
             <ScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={styles.formScroll}
+              contentContainerStyle={{ paddingBottom: 12 }}
             >
               {/* Amount */}
               <CurrencyInput
@@ -387,25 +399,24 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
 
               {/* Category (untuk income & expense) */}
               {selectedAction !== 'transfer' && (
-                <View style={styles.fieldGroup}>
-                  <Text style={styles.fieldLabel}>Kategori</Text>
+                <View className="mb-3.5">
+                  <Text className="font-mono text-[11px] uppercase tracking-wider text-[#D3C5AC] mb-1.5">Kategori</Text>
                   <TouchableOpacity
-                    style={styles.pickerButton}
+                    className="flex-row items-center justify-between h-12 rounded-xl bg-surface-lowest border border-border px-3.5"
                     onPress={() => setShowCategoryPicker(!showCategoryPicker)}
                     activeOpacity={0.75}
                   >
                     <Text
-                      style={[
-                        styles.pickerButtonText,
-                        !selectedCategory && styles.pickerPlaceholder,
-                      ]}
+                      className={`font-manrope-semibold text-sm flex-1 ${
+                        !selectedCategory ? 'text-zinc-500' : 'text-zinc-100'
+                      }`}
                     >
                       {selectedCategory ? selectedCategory.name : 'Pilih kategori…'}
                     </Text>
                     <ChevronDown size={16} color="#71717A" />
                   </TouchableOpacity>
                   {showCategoryPicker && (
-                    <View style={styles.dropdownList}>
+                    <View className="mt-1 rounded-xl bg-[#1C1C20] border border-border overflow-hidden">
                       <ScrollView
                         nestedScrollEnabled
                         style={{ maxHeight: 160 }}
@@ -414,10 +425,9 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                         {filteredCategories.map((cat) => (
                           <TouchableOpacity
                             key={cat.id}
-                            style={[
-                              styles.dropdownItem,
-                              selectedCategoryId === cat.id && styles.dropdownItemActive,
-                            ]}
+                            className={`px-3.5 py-3 border-b border-white/5 ${
+                              selectedCategoryId === cat.id ? 'bg-gold/10' : ''
+                            }`}
                             onPress={() => {
                               setSelectedCategoryId(cat.id);
                               setShowCategoryPicker(false);
@@ -425,17 +435,18 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                             activeOpacity={0.7}
                           >
                             <Text
-                              style={[
-                                styles.dropdownItemText,
-                                selectedCategoryId === cat.id && styles.dropdownItemTextActive,
-                              ]}
+                              className={`text-sm ${
+                                selectedCategoryId === cat.id
+                                  ? 'text-gold-primary font-manrope-semibold'
+                                  : 'font-manrope text-zinc-400'
+                              }`}
                             >
                               {cat.name}
                             </Text>
                           </TouchableOpacity>
                         ))}
                         {filteredCategories.length === 0 && (
-                          <Text style={styles.emptyText}>Belum ada kategori</Text>
+                          <Text className="font-manrope text-[13px] text-zinc-500 text-center py-4">Belum ada kategori</Text>
                         )}
                       </ScrollView>
                     </View>
@@ -444,27 +455,26 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
               )}
 
               {/* Wallet Asal */}
-              <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>
+              <View className="mb-3.5">
+                <Text className="font-mono text-[11px] uppercase tracking-wider text-[#D3C5AC] mb-1.5">
                   {selectedAction === 'transfer' ? 'Dari Kantong' : 'Kantong'}
                 </Text>
                 <TouchableOpacity
-                  style={styles.pickerButton}
+                  className="flex-row items-center justify-between h-12 rounded-xl bg-surface-lowest border border-border px-3.5"
                   onPress={() => setShowWalletPicker(!showWalletPicker)}
                   activeOpacity={0.75}
                 >
                   <Text
-                    style={[
-                      styles.pickerButtonText,
-                      !selectedWallet && styles.pickerPlaceholder,
-                    ]}
+                    className={`font-manrope-semibold text-sm flex-1 ${
+                      !selectedWallet ? 'text-zinc-500' : 'text-zinc-100'
+                    }`}
                   >
                     {selectedWallet ? selectedWallet.name : 'Pilih kantong…'}
                   </Text>
                   <ChevronDown size={16} color="#71717A" />
                 </TouchableOpacity>
                 {showWalletPicker && (
-                  <View style={styles.dropdownList}>
+                  <View className="mt-1 rounded-xl bg-[#1C1C20] border border-border overflow-hidden">
                     <ScrollView
                       nestedScrollEnabled
                       style={{ maxHeight: 160 }}
@@ -473,10 +483,9 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                       {wallets.map((w) => (
                         <TouchableOpacity
                           key={w.id}
-                          style={[
-                            styles.dropdownItem,
-                            selectedWalletId === w.id && styles.dropdownItemActive,
-                          ]}
+                          className={`px-3.5 py-3 border-b border-white/5 ${
+                            selectedWalletId === w.id ? 'bg-gold/10' : ''
+                          }`}
                           onPress={() => {
                             setSelectedWalletId(w.id);
                             setShowWalletPicker(false);
@@ -484,10 +493,11 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                           activeOpacity={0.7}
                         >
                           <Text
-                            style={[
-                              styles.dropdownItemText,
-                              selectedWalletId === w.id && styles.dropdownItemTextActive,
-                            ]}
+                            className={`text-sm ${
+                              selectedWalletId === w.id
+                                ? 'text-gold-primary font-manrope-semibold'
+                                : 'font-manrope text-zinc-400'
+                            }`}
                           >
                             {w.name}
                           </Text>
@@ -500,25 +510,24 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
 
               {/* Wallet Tujuan (hanya transfer) */}
               {selectedAction === 'transfer' && (
-                <View style={styles.fieldGroup}>
-                  <Text style={styles.fieldLabel}>Ke Kantong</Text>
+                <View className="mb-3.5">
+                  <Text className="font-mono text-[11px] uppercase tracking-wider text-[#D3C5AC] mb-1.5">Ke Kantong</Text>
                   <TouchableOpacity
-                    style={styles.pickerButton}
+                    className="flex-row items-center justify-between h-12 rounded-xl bg-surface-lowest border border-border px-3.5"
                     onPress={() => setShowToWalletPicker(!showToWalletPicker)}
                     activeOpacity={0.75}
                   >
                     <Text
-                      style={[
-                        styles.pickerButtonText,
-                        !selectedToWallet && styles.pickerPlaceholder,
-                      ]}
+                      className={`font-manrope-semibold text-sm flex-1 ${
+                        !selectedToWallet ? 'text-zinc-500' : 'text-zinc-100'
+                      }`}
                     >
                       {selectedToWallet ? selectedToWallet.name : 'Pilih kantong tujuan…'}
                     </Text>
                     <ChevronDown size={16} color="#71717A" />
                   </TouchableOpacity>
                   {showToWalletPicker && (
-                    <View style={styles.dropdownList}>
+                    <View className="mt-1 rounded-xl bg-[#1C1C20] border border-border overflow-hidden">
                       <ScrollView
                         nestedScrollEnabled
                         style={{ maxHeight: 160 }}
@@ -529,10 +538,9 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                           .map((w) => (
                             <TouchableOpacity
                               key={w.id}
-                              style={[
-                                styles.dropdownItem,
-                                selectedToWalletId === w.id && styles.dropdownItemActive,
-                              ]}
+                              className={`px-3.5 py-3 border-b border-white/5 ${
+                                selectedToWalletId === w.id ? 'bg-gold/10' : ''
+                              }`}
                               onPress={() => {
                                 setSelectedToWalletId(w.id);
                                 setShowToWalletPicker(false);
@@ -540,10 +548,11 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                               activeOpacity={0.7}
                             >
                               <Text
-                                style={[
-                                  styles.dropdownItemText,
-                                  selectedToWalletId === w.id && styles.dropdownItemTextActive,
-                                ]}
+                                className={`text-sm ${
+                                  selectedToWalletId === w.id
+                                    ? 'text-gold-primary font-manrope-semibold'
+                                    : 'font-manrope text-zinc-400'
+                                }`}
                               >
                                 {w.name}
                               </Text>
@@ -566,11 +575,16 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
 
               {/* Submit */}
               <TouchableOpacity
-                style={[
-                  styles.submitButton,
-                  { backgroundColor: actionConfig.color },
-                  isSubmitting && styles.submitDisabled,
-                ]}
+                className={`h-[52px] rounded-[14px] items-center justify-center mt-2 shadow-lg ${
+                  isSubmitting ? 'opacity-60' : ''
+                }`}
+                style={{
+                  backgroundColor: actionConfig.color,
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 10,
+                  elevation: 5,
+                }}
                 onPress={handleSubmit}
                 activeOpacity={0.8}
                 disabled={isSubmitting}
@@ -578,7 +592,7 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                 {isSubmitting ? (
                   <ActivityIndicator color="#09090B" size="small" />
                 ) : (
-                  <Text style={styles.submitText}>Simpan Transaksi</Text>
+                  <Text className="font-manrope-bold text-[15px] text-background tracking-tight">Simpan Transaksi</Text>
                 )}
               </TouchableOpacity>
             </ScrollView>
@@ -588,218 +602,3 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  backdrop: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0, 0, 0, 0.72)',
-  },
-  sheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#18181B',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    borderTopWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    paddingBottom: Platform.OS === 'ios' ? 36 : 24,
-    minHeight: 300,
-    maxHeight: '90%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 20,
-  },
-  handleBar: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#3F3F46',
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 4,
-  },
-  stepContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-  },
-  sheetTitle: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 22,
-    color: '#F4F4F5',
-    letterSpacing: -0.4,
-    marginBottom: 4,
-  },
-  sheetSubtitle: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 13,
-    color: '#71717A',
-    marginBottom: 20,
-  },
-  actionList: {
-    gap: 10,
-  },
-  actionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    gap: 12,
-  },
-  actionIconCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionTextGroup: {
-    flex: 1,
-  },
-  actionCardLabel: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 15,
-    letterSpacing: -0.2,
-  },
-  actionCardSublabel: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 12,
-    color: '#71717A',
-    marginTop: 2,
-  },
-  cancelButton: {
-    alignItems: 'center',
-    paddingVertical: 18,
-    marginTop: 4,
-  },
-  cancelText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 14,
-    color: '#71717A',
-  },
-  // Form styles
-  formHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  backButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  formTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  formTitleIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  formTitle: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 16,
-    color: '#F4F4F5',
-    letterSpacing: -0.2,
-  },
-  formScroll: {
-    paddingBottom: 12,
-  },
-  fieldGroup: {
-    marginBottom: 14,
-  },
-  fieldLabel: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    color: '#D3C5AC',
-    marginBottom: 6,
-  },
-  pickerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#0E0E11',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    paddingHorizontal: 14,
-  },
-  pickerButtonText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 14,
-    color: '#F4F4F5',
-    flex: 1,
-  },
-  pickerPlaceholder: {
-    color: '#52525B',
-  },
-  dropdownList: {
-    marginTop: 4,
-    borderRadius: 12,
-    backgroundColor: '#1C1C20',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    overflow: 'hidden',
-  },
-  dropdownItem: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
-  },
-  dropdownItemActive: {
-    backgroundColor: 'rgba(234, 179, 8, 0.1)',
-  },
-  dropdownItemText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 14,
-    color: '#A1A1AA',
-  },
-  dropdownItemTextActive: {
-    color: '#FFD165',
-    fontFamily: 'Manrope_600SemiBold',
-  },
-  emptyText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 13,
-    color: '#52525B',
-    textAlign: 'center',
-    paddingVertical: 16,
-  },
-  submitButton: {
-    height: 52,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  submitDisabled: {
-    opacity: 0.6,
-  },
-  submitText: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 15,
-    color: '#09090B',
-    letterSpacing: -0.2,
-  },
-});

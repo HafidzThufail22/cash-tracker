@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { Eye, EyeOff, ArrowUpRight, ArrowDownLeft, ChevronDown } from 'lucide-react-native';
 import { formatRupiah } from '../../../utils/currency';
 
@@ -26,7 +26,6 @@ export function TotalBalanceCard({
 }: TotalBalanceCardProps) {
   const displayBalance = isBalanceHidden ? '••••••••' : formatRupiah(totalBalance, false);
 
-  // Animasi transisi halus saat saldo berubah atau di-toggle
   const balanceFadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -39,33 +38,40 @@ export function TotalBalanceCard({
   }, [totalBalance, isBalanceHidden, selectedWalletName]);
 
   return (
-    <View style={styles.cardContainer}>
-      <View style={styles.content}>
+    <View
+      className="rounded-2xl bg-surface border border-border overflow-hidden"
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 4,
+      }}
+    >
+      <View className="px-4 py-3.5">
         {/* Header: Indicator & Right Controls (Wallet Dropdown + Eye Toggle) */}
-        <View style={styles.headerRow}>
-          <View style={styles.badgeRow}>
-            <View style={styles.pulseDot} />
-            <Text style={styles.badgeText}>
+        <View className="flex-row items-center justify-between mb-1">
+          <View className="flex-row items-center gap-1.5 flex-1">
+            <View className="w-1.5 h-1.5 rounded-full bg-gold-primary" />
+            <Text className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
               {selectedWalletName ? 'Net Balance' : 'Total Net Balance'}
             </Text>
           </View>
 
-          <View style={styles.headerRightActions}>
+          <View className="flex-row items-center gap-1.5">
             {onOpenWalletPicker && (
               <TouchableOpacity
-                style={styles.walletFilterPill}
+                className="flex-row items-center gap-1.5 h-7 px-2.5 rounded-full bg-[#111113] border border-border"
                 onPress={onOpenWalletPicker}
                 activeOpacity={0.7}
                 accessibilityLabel="Pilih Kantong Kas"
                 accessibilityRole="button"
               >
                 <View
-                  style={[
-                    styles.walletIndicatorDot,
-                    { backgroundColor: selectedWalletColor || '#FFD165' },
-                  ]}
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: selectedWalletColor || '#FFD165' }}
                 />
-                <Text style={styles.walletFilterPillText} numberOfLines={1}>
+                <Text className="font-manrope-semibold text-[11px] text-zinc-200 max-w-[86px]" numberOfLines={1}>
                   {selectedWalletName || 'Semua'}
                 </Text>
                 <ChevronDown size={12} color="#71717A" />
@@ -73,7 +79,7 @@ export function TotalBalanceCard({
             )}
 
             <TouchableOpacity
-              style={styles.eyeButton}
+              className="w-7 h-7 rounded-full bg-[#111113] border border-border items-center justify-center"
               onPress={onToggleBalance}
               activeOpacity={0.7}
               accessibilityLabel="Sembunyikan / Tampilkan Saldo"
@@ -88,14 +94,13 @@ export function TotalBalanceCard({
           </View>
         </View>
 
-        {/* Balance Nominal Display (dengan Transisi Halus) */}
-        <Animated.View style={[styles.balanceRow, { opacity: balanceFadeAnim }]}>
-          <Text style={styles.currencyPrefix}>Rp</Text>
+        {/* Balance Nominal Display */}
+        <Animated.View className="flex-row items-baseline gap-1.5 my-0.5" style={{ opacity: balanceFadeAnim }}>
+          <Text className="font-grotesk text-lg text-gold-primary">Rp</Text>
           <Text
-            style={[
-              styles.balanceText,
-              isBalanceHidden && styles.balanceHiddenText,
-            ]}
+            className={`font-grotesk-bold text-[28px] text-zinc-100 ${
+              isBalanceHidden ? 'tracking-[4px] text-[22px] text-zinc-400' : 'tracking-tight'
+            }`}
             numberOfLines={1}
             adjustsFontSizeToFit
           >
@@ -104,19 +109,19 @@ export function TotalBalanceCard({
         </Animated.View>
 
         {/* Hairline Divider */}
-        <View style={styles.divider} />
+        <View className="h-[1px] bg-border my-2.5" />
 
-        {/* Micro-stats: Income & Expense (Format Rp Lengkap & Rapi) */}
-        <View style={styles.statsGrid}>
+        {/* Micro-stats: Income & Expense */}
+        <View className="flex-row gap-2">
           {/* Income Box */}
-          <View style={styles.statBox}>
-            <View style={styles.incomeIconWrapper}>
+          <View className="flex-1 flex-row items-center gap-2 px-2.5 py-2 rounded-xl bg-[#111113] border border-border">
+            <View className="w-[26px] h-[26px] rounded-full bg-emerald-500/15 items-center justify-center">
               <ArrowUpRight size={14} color="#10B981" strokeWidth={2.5} />
             </View>
-            <View style={styles.statTextContainer}>
-              <Text style={styles.statLabel}>Pemasukan</Text>
+            <View className="flex-1">
+              <Text className="font-manrope-medium text-[10px] text-zinc-500 mb-0.5">Pemasukan</Text>
               <Text
-                style={styles.incomeAmount}
+                className="font-grotesk text-xs text-semantic-income"
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 minimumFontScale={0.85}
@@ -127,14 +132,14 @@ export function TotalBalanceCard({
           </View>
 
           {/* Expense Box */}
-          <View style={styles.statBox}>
-            <View style={styles.expenseIconWrapper}>
+          <View className="flex-1 flex-row items-center gap-2 px-2.5 py-2 rounded-xl bg-[#111113] border border-border">
+            <View className="w-[26px] h-[26px] rounded-full bg-red-500/15 items-center justify-center">
               <ArrowDownLeft size={14} color="#EF4444" strokeWidth={2.5} />
             </View>
-            <View style={styles.statTextContainer}>
-              <Text style={styles.statLabel}>Pengeluaran</Text>
+            <View className="flex-1">
+              <Text className="font-manrope-medium text-[10px] text-zinc-500 mb-0.5">Pengeluaran</Text>
               <Text
-                style={styles.expenseAmount}
+                className="font-grotesk text-xs text-semantic-expense"
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 minimumFontScale={0.85}
@@ -148,162 +153,3 @@ export function TotalBalanceCard({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  cardContainer: {
-    borderRadius: 16,
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  content: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    flex: 1,
-  },
-  pulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#FFD165',
-  },
-  badgeText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    color: '#A1A1AA',
-  },
-  headerRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  walletFilterPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    height: 28,
-    paddingHorizontal: 9,
-    borderRadius: 14,
-    backgroundColor: '#111113',
-    borderWidth: 1,
-    borderColor: '#27272A',
-  },
-  walletIndicatorDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  walletFilterPillText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 11,
-    color: '#E4E4E7',
-    maxWidth: 86,
-  },
-  eyeButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#111113',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  balanceRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 6,
-    marginVertical: 2,
-  },
-  currencyPrefix: {
-    fontFamily: 'SpaceGrotesk_600SemiBold',
-    fontSize: 18,
-    color: '#FFD165',
-  },
-  balanceText: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 28,
-    color: '#F4F4F5',
-    letterSpacing: -0.4,
-  },
-  balanceHiddenText: {
-    letterSpacing: 4,
-    fontSize: 22,
-    color: '#A1A1AA',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#27272A',
-    marginVertical: 10,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  statBox: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: '#111113',
-    borderWidth: 1,
-    borderColor: '#27272A',
-  },
-  incomeIconWrapper: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  expenseIconWrapper: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statTextContainer: {
-    flex: 1,
-  },
-  statLabel: {
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 10,
-    color: '#71717A',
-    marginBottom: 2,
-  },
-  incomeAmount: {
-    fontFamily: 'SpaceGrotesk_600SemiBold',
-    fontSize: 12,
-    color: '#10B981',
-  },
-  expenseAmount: {
-    fontFamily: 'SpaceGrotesk_600SemiBold',
-    fontSize: 12,
-    color: '#EF4444',
-  },
-});

@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  StyleSheet,
   Alert,
 } from 'react-native';
 import { ModalLayout } from '../../../layouts/ModalLayout';
@@ -45,7 +44,7 @@ export function AddBudgetModal({
       setAmountLimit(existingBudget.amountLimit);
     } else {
       setSelectedCategoryId(categories.length > 0 ? categories[0].id : '');
-      setAmountLimit(500000); // Default saran plafon 500rb
+      setAmountLimit(500000);
     }
   }, [existingBudget, categories, visible]);
 
@@ -83,14 +82,16 @@ export function AddBudgetModal({
       title={existingBudget ? 'Ubah Plafon Anggaran' : 'Buat Anggaran Baru'}
       subtitle="Tetapkan batas pengeluaran bulanan per kategori"
     >
-      <View style={styles.container}>
+      <View className="gap-4 pb-2">
         {/* Category Picker Section */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Pilih Kategori Belanja</Text>
+        <View className="gap-2">
+          <Text className="font-manrope-semibold text-xs text-zinc-300 tracking-wide">
+            Pilih Kategori Belanja
+          </Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoryChips}
+            contentContainerStyle={{ gap: 8, paddingVertical: 2 }}
           >
             {categories.map((cat) => {
               const isSelected = selectedCategoryId === cat.id;
@@ -98,10 +99,11 @@ export function AddBudgetModal({
               return (
                 <TouchableOpacity
                   key={cat.id}
-                  style={[
-                    styles.categoryChip,
-                    isSelected ? styles.categoryChipSelected : styles.categoryChipUnselected,
-                  ]}
+                  className={`px-3.5 py-2 rounded-[14px] border ${
+                    isSelected
+                      ? 'bg-gold border-gold'
+                      : 'bg-surface border-gold/35'
+                  }`}
                   onPress={() => {
                     if (!existingBudget) {
                       setSelectedCategoryId(cat.id);
@@ -111,10 +113,9 @@ export function AddBudgetModal({
                   disabled={existingBudget !== null && existingBudget !== undefined}
                 >
                   <Text
-                    style={[
-                      styles.categoryChipText,
-                      isSelected ? styles.categoryChipTextSelected : styles.categoryChipTextUnselected,
-                    ]}
+                    className={`font-manrope-semibold text-xs ${
+                      isSelected ? 'text-background font-bold' : 'text-zinc-400'
+                    }`}
                   >
                     {cat.name}
                   </Text>
@@ -125,8 +126,10 @@ export function AddBudgetModal({
         </View>
 
         {/* Amount Limit Input */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Batas Maksimal Pengeluaran (Plafon)</Text>
+        <View className="gap-2">
+          <Text className="font-manrope-semibold text-xs text-zinc-300 tracking-wide">
+            Batas Maksimal Pengeluaran (Plafon)
+          </Text>
           <CurrencyInput
             value={amountLimit}
             onChangeValue={setAmountLimit}
@@ -134,22 +137,22 @@ export function AddBudgetModal({
           />
 
           {/* Quick Amount Increment Chips */}
-          <View style={styles.quickChipsRow}>
+          <View className="flex-row gap-2 mt-0.5">
             {QUICK_AMOUNTS.map((q) => (
               <TouchableOpacity
                 key={q.label}
-                style={styles.quickChip}
+                className="flex-1 py-1.5 rounded-[10px] bg-[#131316] border border-border items-center justify-center"
                 onPress={() => handleAddQuickAmount(q.value)}
                 activeOpacity={0.7}
               >
-                <Text style={styles.quickChipText}>{q.label}</Text>
+                <Text className="font-mono text-[11px] text-gold-primary">{q.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
         {/* Note / Guidance */}
-        <Text style={styles.guidanceText}>
+        <Text className="font-manrope text-[11px] text-zinc-500 leading-4">
           Plafon anggaran ini akan berlaku otomatis setiap bulan. Pengeluaran aktual akan terakumulasi dari transaksi Anda.
         </Text>
 
@@ -158,83 +161,8 @@ export function AddBudgetModal({
           title={existingBudget ? 'Simpan Perubahan' : 'Buat Anggaran'}
           onPress={handleSubmit}
           loading={isSubmitting}
-          style={styles.submitButton}
         />
       </View>
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: 16,
-    paddingBottom: 8,
-  },
-  formGroup: {
-    gap: 8,
-  },
-  label: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 12,
-    color: '#D4D4D8',
-    letterSpacing: 0.2,
-  },
-  categoryChips: {
-    gap: 8,
-    paddingVertical: 2,
-  },
-  categoryChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 14,
-    borderWidth: 1,
-  },
-  categoryChipSelected: {
-    backgroundColor: '#EAB308',
-    borderColor: '#EAB308',
-  },
-  categoryChipUnselected: {
-    backgroundColor: '#18181B',
-    borderColor: 'rgba(79, 70, 51, 0.35)',
-  },
-  categoryChipText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 12,
-  },
-  categoryChipTextSelected: {
-    color: '#09090B',
-    fontWeight: '700',
-  },
-  categoryChipTextUnselected: {
-    color: '#A1A1AA',
-  },
-  quickChipsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 2,
-  },
-  quickChip: {
-    flex: 1,
-    paddingVertical: 7,
-    borderRadius: 10,
-    backgroundColor: '#131316',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quickChipText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    color: '#FFD165',
-  },
-  guidanceText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 11,
-    color: '#71717A',
-    lineHeight: 16,
-  },
-  submitButton: {
-    marginTop: 4,
-  },
-});

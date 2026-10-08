@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import {
   Utensils,
   Coffee,
@@ -44,36 +44,44 @@ export function BudgetCard({ budget, onPress }: BudgetCardProps) {
 
   return (
     <TouchableOpacity
-      style={[
-        styles.card,
-        isOverbudget && styles.cardOverbudget,
-        isWarning && styles.cardWarning,
-      ]}
+      className={`bg-surface rounded-[18px] border p-4 gap-3 ${
+        isOverbudget
+          ? 'border-red-500/40'
+          : isWarning
+          ? 'border-amber-500/40'
+          : 'border-gold/30'
+      }`}
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 6,
+        elevation: 2,
+      }}
       onPress={() => onPress(budget)}
       activeOpacity={0.75}
     >
       {/* Top Row: Category Icon & Title & Status Badge */}
-      <View style={styles.topRow}>
-        <View style={styles.categoryInfo}>
+      <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center gap-3 flex-1">
           <View
-            style={[
-              styles.iconCircle,
+            className={`w-[38px] h-[38px] rounded-xl bg-surface-lowest border items-center justify-center ${
               isOverbudget
-                ? styles.iconCircleOverbudget
+                ? 'border-red-500/35'
                 : isWarning
-                ? styles.iconCircleWarning
-                : styles.iconCircleSafe,
-            ]}
+                ? 'border-amber-500/35'
+                : 'border-gold/30'
+            }`}
           >
             {getCategoryIcon(budget.categoryName, budget.categoryColor)}
           </View>
           <View>
-            <Text style={styles.categoryName} numberOfLines={1}>
+            <Text className="font-manrope-semibold text-sm text-zinc-100 mb-0.5" numberOfLines={1}>
               {budget.categoryName}
             </Text>
-            <View style={styles.txCountRow}>
+            <View className="flex-row items-center gap-1">
               <Receipt size={10} color="#71717A" />
-              <Text style={styles.txCountText}>
+              <Text className="font-mono text-[10px] text-zinc-500">
                 {budget.transactionCount} transaksi bulan ini
               </Text>
             </View>
@@ -82,27 +90,25 @@ export function BudgetCard({ budget, onPress }: BudgetCardProps) {
 
         {/* Percentage Badge */}
         <View
-          style={[
-            styles.badge,
+          className={`flex-row items-center px-2 py-0.5 rounded-[10px] border ${
             isOverbudget
-              ? styles.badgeOverbudget
+              ? 'bg-red-500/10 border-red-500/30'
               : isWarning
-              ? styles.badgeWarning
-              : styles.badgeSafe,
-          ]}
+              ? 'bg-amber-500/10 border-amber-500/30'
+              : 'bg-gold/10 border-gold/25'
+          }`}
         >
           {isOverbudget && (
-            <AlertTriangle size={11} color="#EF4444" style={styles.badgeIcon} />
+            <AlertTriangle size={11} color="#EF4444" style={{ marginRight: 3 }} />
           )}
           <Text
-            style={[
-              styles.badgeText,
+            className={`font-mono text-[11px] font-bold ${
               isOverbudget
-                ? styles.badgeTextOverbudget
+                ? 'text-semantic-expense'
                 : isWarning
-                ? styles.badgeTextWarning
-                : styles.badgeTextSafe,
-            ]}
+                ? 'text-amber-500'
+                : 'text-gold-primary'
+            }`}
           >
             {budget.percentage}%
           </Text>
@@ -110,22 +116,21 @@ export function BudgetCard({ budget, onPress }: BudgetCardProps) {
       </View>
 
       {/* Amount Numbers Row */}
-      <View style={styles.amountRow}>
-        <View style={styles.spentInfo}>
-          <Text style={styles.amountLabel}>Terpakai</Text>
+      <View className="flex-row justify-between items-end">
+        <View className="gap-0.5">
+          <Text className="font-manrope text-[10px] text-zinc-500 uppercase tracking-wider">Terpakai</Text>
           <Text
-            style={[
-              styles.spentAmount,
-              isOverbudget && styles.spentAmountOverbudget,
-            ]}
+            className={`font-grotesk-bold text-lg ${
+              isOverbudget ? 'text-semantic-expense' : 'text-zinc-100'
+            }`}
           >
             {formatRupiah(budget.spent)}
           </Text>
         </View>
 
-        <View style={styles.limitInfo}>
-          <Text style={styles.limitLabel}>Plafon</Text>
-          <Text style={styles.limitAmount}>{formatRupiah(budget.amountLimit)}</Text>
+        <View className="items-end gap-0.5">
+          <Text className="font-manrope text-[10px] text-zinc-500 uppercase tracking-wider">Plafon</Text>
+          <Text className="font-mono text-[13px] text-zinc-400">{formatRupiah(budget.amountLimit)}</Text>
         </View>
       </View>
 
@@ -133,191 +138,22 @@ export function BudgetCard({ budget, onPress }: BudgetCardProps) {
       <BudgetProgressBar percentage={budget.percentage} status={budget.status} height={7} />
 
       {/* Bottom Status / Remaining Row */}
-      <View style={styles.bottomRow}>
+      <View className="flex-row items-center justify-between pt-0.5">
         {isOverbudget ? (
-          <Text style={styles.overbudgetText}>
+          <Text className="font-manrope-semibold text-xs text-semantic-expense">
             Melebihi kuota {formatRupiah(Math.abs(budget.remaining))}
           </Text>
         ) : (
-          <Text style={styles.remainingText}>
+          <Text className="font-manrope-medium text-xs text-semantic-income">
             Tersisa {formatRupiah(budget.remaining)}
           </Text>
         )}
 
-        <View style={styles.detailLink}>
-          <Text style={styles.detailLinkText}>Detail</Text>
+        <View className="flex-row items-center gap-0.5">
+          <Text className="font-mono text-[11px] text-zinc-500">Detail</Text>
           <ChevronRight size={13} color="#71717A" />
         </View>
       </View>
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#18181B',
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 51, 0.3)',
-    padding: 16,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  cardOverbudget: {
-    borderColor: 'rgba(239, 68, 68, 0.4)',
-  },
-  cardWarning: {
-    borderColor: 'rgba(245, 158, 11, 0.4)',
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  categoryInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  iconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: '#0E0E11',
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconCircleSafe: {
-    borderColor: 'rgba(234, 179, 8, 0.3)',
-  },
-  iconCircleWarning: {
-    borderColor: 'rgba(245, 158, 11, 0.35)',
-  },
-  iconCircleOverbudget: {
-    borderColor: 'rgba(239, 68, 68, 0.35)',
-  },
-  categoryName: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 14,
-    color: '#F4F4F5',
-    marginBottom: 2,
-  },
-  txCountRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  txCountText: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 10,
-    color: '#71717A',
-  },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
-    borderWidth: 1,
-  },
-  badgeSafe: {
-    backgroundColor: 'rgba(234, 179, 8, 0.1)',
-    borderColor: 'rgba(234, 179, 8, 0.25)',
-  },
-  badgeWarning: {
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-    borderColor: 'rgba(245, 158, 11, 0.3)',
-  },
-  badgeOverbudget: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-  },
-  badgeIcon: {
-    marginRight: 3,
-  },
-  badgeText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  badgeTextSafe: {
-    color: '#FFD165',
-  },
-  badgeTextWarning: {
-    color: '#F59E0B',
-  },
-  badgeTextOverbudget: {
-    color: '#EF4444',
-  },
-  amountRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-  },
-  spentInfo: {
-    gap: 2,
-  },
-  amountLabel: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 10,
-    color: '#71717A',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  spentAmount: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 18,
-    color: '#F4F4F5',
-  },
-  spentAmountOverbudget: {
-    color: '#EF4444',
-  },
-  limitInfo: {
-    alignItems: 'flex-end',
-    gap: 2,
-  },
-  limitLabel: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 10,
-    color: '#71717A',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  limitAmount: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 13,
-    color: '#A1A1AA',
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 2,
-  },
-  remainingText: {
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 12,
-    color: '#10B981',
-  },
-  overbudgetText: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 12,
-    color: '#EF4444',
-  },
-  detailLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  detailLinkText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 11,
-    color: '#71717A',
-  },
-});

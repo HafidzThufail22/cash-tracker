@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native';
 import { ModalLayout } from '../../../layouts/ModalLayout';
 import { AvailableMonth } from '../../../database/repositories/transactionRepo';
@@ -51,11 +51,11 @@ export function PeriodPickerModal({
       subtitle="Filter Periode Finansial"
       scrollable={false}
     >
-      <View style={styles.container}>
+      <View className="py-1 gap-4">
         {/* Year Navigator */}
-        <View style={styles.yearNavigator}>
+        <View className="flex-row items-center justify-between bg-[#111113] rounded-[14px] border border-border px-2 py-1.5">
           <TouchableOpacity
-            style={styles.yearArrowBtn}
+            className="w-10 h-10 rounded-full bg-surface items-center justify-center border border-border"
             onPress={() => setViewingYear((prev) => prev - 1)}
             activeOpacity={0.7}
             accessibilityLabel="Tahun Sebelumnya"
@@ -63,12 +63,14 @@ export function PeriodPickerModal({
             <ChevronLeft size={20} color="#F4F4F5" />
           </TouchableOpacity>
 
-          <View style={styles.yearDisplay}>
-            <Text style={styles.yearText}>{viewingYear}</Text>
+          <View className="px-4 py-1">
+            <Text className="font-grotesk-bold text-xl tracking-wider text-gold-primary">
+              {viewingYear}
+            </Text>
           </View>
 
           <TouchableOpacity
-            style={styles.yearArrowBtn}
+            className="w-10 h-10 rounded-full bg-surface items-center justify-center border border-border"
             onPress={() => setViewingYear((prev) => prev + 1)}
             activeOpacity={0.7}
             accessibilityLabel="Tahun Selanjutnya"
@@ -78,14 +80,18 @@ export function PeriodPickerModal({
         </View>
 
         {/* 12 Months Grid (3 columns x 4 rows) */}
-        <View style={styles.monthsGrid}>
+        <View className="flex-row flex-wrap gap-2.5 justify-between">
           {MONTH_NAMES.map((item) => {
             const isSelected = viewingYear === selectedYear && item.month === selectedMonth;
 
             return (
               <TouchableOpacity
                 key={item.month}
-                style={[styles.monthCard, isSelected && styles.monthCardSelected]}
+                className={`w-[31%] rounded-[14px] py-3.5 px-2 items-center justify-center relative border ${
+                  isSelected
+                    ? 'bg-gold-primary border-gold shadow-md shadow-gold/30'
+                    : 'bg-surface border-border'
+                }`}
                 onPress={() => {
                   onSelectMonth(viewingYear, item.month);
                   onClose();
@@ -93,16 +99,24 @@ export function PeriodPickerModal({
                 activeOpacity={0.7}
               >
                 <Text
-                  style={[styles.monthShortText, isSelected && styles.monthShortTextSelected]}
+                  className={`font-grotesk-bold text-base ${
+                    isSelected ? 'text-background' : 'text-zinc-100'
+                  }`}
                 >
                   {item.short}
                 </Text>
-                <Text style={[styles.monthFullText, isSelected && styles.monthFullTextSelected]}>
+                <Text
+                  className={`text-[10px] mt-0.5 ${
+                    isSelected
+                      ? 'text-background/80 font-manrope-semibold'
+                      : 'font-manrope text-zinc-500'
+                  }`}
+                >
                   {item.full}
                 </Text>
 
                 {isSelected && (
-                  <View style={styles.checkBadge}>
+                  <View className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-black/20 items-center justify-center">
                     <Check size={12} color="#09090B" strokeWidth={3} />
                   </View>
                 )}
@@ -114,97 +128,3 @@ export function PeriodPickerModal({
     </ModalLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 4,
-    gap: 16,
-  },
-  yearNavigator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#111113',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#27272A',
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-  },
-  yearArrowBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#18181B',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#27272A',
-  },
-  yearDisplay: {
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-  },
-  yearText: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 20,
-    letterSpacing: 1,
-    color: '#FFD165',
-  },
-  monthsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    justifyContent: 'space-between',
-  },
-  monthCard: {
-    width: '31%',
-    backgroundColor: '#18181B',
-    borderWidth: 1,
-    borderColor: '#27272A',
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  monthCardSelected: {
-    backgroundColor: '#FFD165',
-    borderColor: '#EAB308',
-    shadowColor: '#EAB308',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  monthShortText: {
-    fontFamily: 'SpaceGrotesk_700Bold',
-    fontSize: 16,
-    color: '#F4F4F5',
-  },
-  monthShortTextSelected: {
-    color: '#09090B',
-  },
-  monthFullText: {
-    fontFamily: 'Manrope_400Regular',
-    fontSize: 10,
-    color: '#71717A',
-    marginTop: 2,
-  },
-  monthFullTextSelected: {
-    color: 'rgba(9, 9, 11, 0.8)',
-    fontFamily: 'Manrope_600SemiBold',
-  },
-  checkBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: 'rgba(9, 9, 11, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
