@@ -51,7 +51,7 @@ export function PeriodPickerModal({
       subtitle="Filter Periode Finansial"
       scrollable={false}
     >
-      <View className="gap-3 pb-3">
+      <View className="gap-3 pb-4">
         {/* Year Navigator */}
         <View className="flex-row items-center justify-between bg-[#111113] rounded-2xl border border-border px-3 py-2">
           <TouchableOpacity
@@ -80,14 +80,14 @@ export function PeriodPickerModal({
         </View>
 
         {/* 12 Months Grid (3 columns x 4 rows) */}
-        <View className="flex-row flex-wrap gap-2.5 justify-between">
+        <View className="flex-row flex-wrap gap-2.5 justify-between mb-1">
           {MONTH_NAMES.map((item) => {
             const isSelected = viewingYear === selectedYear && item.month === selectedMonth;
 
             return (
               <TouchableOpacity
                 key={item.month}
-                className={`w-[31%] h-[44px] rounded-xl items-center justify-center border ${
+                className={`w-[31%] h-[42px] rounded-xl items-center justify-center border ${
                   isSelected
                     ? 'bg-gold-primary border-gold shadow-sm shadow-gold/30'
                     : 'bg-surface border-border'

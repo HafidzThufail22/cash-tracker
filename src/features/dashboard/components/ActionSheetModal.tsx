@@ -11,6 +11,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   TrendingUp,
   TrendingDown,
@@ -64,6 +65,8 @@ const ACTION_CONFIG = {
 } as const;
 
 export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetModalProps) {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Math.max(insets.bottom, 24) + 32;
   const slideAnim = useRef(new Animated.Value(600)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
   const cardAnims = useRef([
@@ -289,7 +292,7 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
         className="absolute bottom-0 left-0 right-0 bg-surface rounded-t-[28px] border-t border-white/10 min-h-[300px] max-h-[90%]"
         style={[
           {
-            paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+            paddingBottom: bottomPadding,
             shadowColor: '#000',
             shadowOffset: { width: 0, height: -6 },
             shadowOpacity: 0.4,
@@ -304,7 +307,7 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
 
         {/* ── STEP 1: PICKER ── */}
         {step === 'picker' && (
-          <View className="px-5 pt-3">
+          <View className="px-5 pt-3 pb-5">
             <Text className="font-manrope-bold text-[22px] text-zinc-100 tracking-tight mb-1">
               Mau ngapain?
             </Text>
@@ -361,7 +364,7 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
               })}
             </View>
 
-            <TouchableOpacity className="items-center py-4.5 mt-1" onPress={closeSheet} activeOpacity={0.7}>
+            <TouchableOpacity className="items-center py-4.5 mt-6" onPress={closeSheet} activeOpacity={0.7}>
               <Text className="font-manrope-semibold text-sm text-zinc-500">Batal</Text>
             </TouchableOpacity>
           </View>
@@ -387,7 +390,7 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
             <ScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 12 }}
+              contentContainerStyle={{ paddingBottom: 40 }}
             >
               {/* Amount */}
               <CurrencyInput
@@ -407,9 +410,8 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                     activeOpacity={0.75}
                   >
                     <Text
-                      className={`font-manrope-semibold text-sm flex-1 ${
-                        !selectedCategory ? 'text-zinc-500' : 'text-zinc-100'
-                      }`}
+                      className={`font-manrope-semibold text-sm flex-1 ${!selectedCategory ? 'text-zinc-500' : 'text-zinc-100'
+                        }`}
                     >
                       {selectedCategory ? selectedCategory.name : 'Pilih kategori…'}
                     </Text>
@@ -425,9 +427,8 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                         {filteredCategories.map((cat) => (
                           <TouchableOpacity
                             key={cat.id}
-                            className={`px-3.5 py-3 border-b border-white/5 ${
-                              selectedCategoryId === cat.id ? 'bg-gold/10' : ''
-                            }`}
+                            className={`px-3.5 py-3 border-b border-white/5 ${selectedCategoryId === cat.id ? 'bg-gold/10' : ''
+                              }`}
                             onPress={() => {
                               setSelectedCategoryId(cat.id);
                               setShowCategoryPicker(false);
@@ -435,11 +436,10 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                             activeOpacity={0.7}
                           >
                             <Text
-                              className={`text-sm ${
-                                selectedCategoryId === cat.id
-                                  ? 'text-gold-primary font-manrope-semibold'
-                                  : 'font-manrope text-zinc-400'
-                              }`}
+                              className={`text-sm ${selectedCategoryId === cat.id
+                                ? 'text-gold-primary font-manrope-semibold'
+                                : 'font-manrope text-zinc-400'
+                                }`}
                             >
                               {cat.name}
                             </Text>
@@ -465,9 +465,8 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                   activeOpacity={0.75}
                 >
                   <Text
-                    className={`font-manrope-semibold text-sm flex-1 ${
-                      !selectedWallet ? 'text-zinc-500' : 'text-zinc-100'
-                    }`}
+                    className={`font-manrope-semibold text-sm flex-1 ${!selectedWallet ? 'text-zinc-500' : 'text-zinc-100'
+                      }`}
                   >
                     {selectedWallet ? selectedWallet.name : 'Pilih kantong…'}
                   </Text>
@@ -483,9 +482,8 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                       {wallets.map((w) => (
                         <TouchableOpacity
                           key={w.id}
-                          className={`px-3.5 py-3 border-b border-white/5 ${
-                            selectedWalletId === w.id ? 'bg-gold/10' : ''
-                          }`}
+                          className={`px-3.5 py-3 border-b border-white/5 ${selectedWalletId === w.id ? 'bg-gold/10' : ''
+                            }`}
                           onPress={() => {
                             setSelectedWalletId(w.id);
                             setShowWalletPicker(false);
@@ -493,11 +491,10 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                           activeOpacity={0.7}
                         >
                           <Text
-                            className={`text-sm ${
-                              selectedWalletId === w.id
-                                ? 'text-gold-primary font-manrope-semibold'
-                                : 'font-manrope text-zinc-400'
-                            }`}
+                            className={`text-sm ${selectedWalletId === w.id
+                              ? 'text-gold-primary font-manrope-semibold'
+                              : 'font-manrope text-zinc-400'
+                              }`}
                           >
                             {w.name}
                           </Text>
@@ -518,9 +515,8 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                     activeOpacity={0.75}
                   >
                     <Text
-                      className={`font-manrope-semibold text-sm flex-1 ${
-                        !selectedToWallet ? 'text-zinc-500' : 'text-zinc-100'
-                      }`}
+                      className={`font-manrope-semibold text-sm flex-1 ${!selectedToWallet ? 'text-zinc-500' : 'text-zinc-100'
+                        }`}
                     >
                       {selectedToWallet ? selectedToWallet.name : 'Pilih kantong tujuan…'}
                     </Text>
@@ -538,9 +534,8 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                           .map((w) => (
                             <TouchableOpacity
                               key={w.id}
-                              className={`px-3.5 py-3 border-b border-white/5 ${
-                                selectedToWalletId === w.id ? 'bg-gold/10' : ''
-                              }`}
+                              className={`px-3.5 py-3 border-b border-white/5 ${selectedToWalletId === w.id ? 'bg-gold/10' : ''
+                                }`}
                               onPress={() => {
                                 setSelectedToWalletId(w.id);
                                 setShowToWalletPicker(false);
@@ -548,11 +543,10 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
                               activeOpacity={0.7}
                             >
                               <Text
-                                className={`text-sm ${
-                                  selectedToWalletId === w.id
-                                    ? 'text-gold-primary font-manrope-semibold'
-                                    : 'font-manrope text-zinc-400'
-                                }`}
+                                className={`text-sm ${selectedToWalletId === w.id
+                                  ? 'text-gold-primary font-manrope-semibold'
+                                  : 'font-manrope text-zinc-400'
+                                  }`}
                               >
                                 {w.name}
                               </Text>
@@ -575,9 +569,8 @@ export function ActionSheetModal({ visible, onClose, onSuccess }: ActionSheetMod
 
               {/* Submit */}
               <TouchableOpacity
-                className={`h-[52px] rounded-[14px] items-center justify-center mt-2 shadow-lg ${
-                  isSubmitting ? 'opacity-60' : ''
-                }`}
+                className={`h-[52px] rounded-[14px] items-center justify-center mt-2 shadow-lg ${isSubmitting ? 'opacity-60' : ''
+                  }`}
                 style={{
                   backgroundColor: actionConfig.color,
                   shadowOffset: { width: 0, height: 4 },

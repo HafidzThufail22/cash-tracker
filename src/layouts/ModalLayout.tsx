@@ -30,7 +30,7 @@ export function ModalLayout({
   scrollable = true,
 }: ModalLayoutProps) {
   const insets = useSafeAreaInsets();
-  const bottomInset = Math.max(insets.bottom, 16) + 16;
+  const bottomInset = Math.max(insets.bottom, 24) + 32;
 
   return (
     <Modal
@@ -85,14 +85,14 @@ export function ModalLayout({
                 {scrollable ? (
                   <ScrollView
                     className="max-h-[520px]"
-                    contentContainerStyle={{ padding: 20 }}
+                    contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                   >
                     {children}
                   </ScrollView>
                 ) : (
-                  <View className="px-5 pt-3 pb-1">{children}</View>
+                  <View className="px-5 pt-3 pb-5">{children}</View>
                 )}
               </View>
             </TouchableWithoutFeedback>

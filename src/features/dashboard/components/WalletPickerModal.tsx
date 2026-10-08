@@ -72,7 +72,7 @@ export function WalletPickerModal({
         <FlatList
           data={wallets}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ gap: 8, paddingBottom: 12 }}
+          contentContainerStyle={{ gap: 8, paddingBottom: 28 }}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
             const isSelected = selectedWalletId === item.id;
